@@ -386,6 +386,82 @@
             border-radius: 28px;
             color: var(--text-muted);
         }
+        
+        /* New styles for form sections */
+        .form-section {
+            background: #F9FCFB;
+            border-radius: 20px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--gray-border);
+        }
+        .form-section h3 {
+            color: var(--primary-deep);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .form-row .form-group {
+            flex: 1;
+            min-width: 180px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: normal;
+            font-size: 0.85rem;
+        }
+        .checkbox-group input {
+            width: auto;
+        }
+        .template-warning {
+            background: var(--gold-light);
+            border-left: 4px solid var(--gold);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .template-warning a {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .attachment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .attachment-item {
+            background: white;
+            border: 1px solid var(--gray-border);
+            border-radius: 12px;
+            padding: 0.5rem;
+        }
+        .attachment-item label {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .attachment-item input {
+            font-size: 0.75rem;
+            padding: 0.4rem;
+        }
 
         /* ========== FOOTER STYLES ========== */
         .footer {
@@ -460,6 +536,7 @@
             .dashboard-container { padding: 1.2rem; }
             .quick-action-hero { flex-direction: column; text-align: center; }
             .footer-container { grid-template-columns: 1fr; gap: 1.8rem; }
+            .modal-content { margin: 1rem; padding: 1.2rem; }
         }
     </style>
 </head>
@@ -467,7 +544,6 @@
 
 <nav class="navbar">
     <div class="logo">
-        <!-- Africa CDC Logo - using actual AfricaCDClogo.png as requested -->
         <img src="AfricaCDClogo.png" alt="Africa CDC Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23D4AF37\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'48\' text-anchor=\'middle\' fill=\'%231B4D3E\' font-weight=\'bold\'%3E♂%3C/text%3E%3C/svg%3E';">
         <h1>Africa CDC Ethics Review</h1>
     </div>
@@ -500,34 +576,142 @@
     <div id="submissionsContainer" class="submissions-grid"></div>
 </div>
 
-<!-- New Submission Modal -->
+<!-- New Submission Modal - ENHANCED with all requested fields -->
 <div id="newSubmissionModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 950px;">
         <span class="close-modal" style="float: right; font-size: 28px; cursor: pointer;" onclick="closeNewSubmissionModal()">&times;</span>
         <h2 style="margin-bottom: 1rem;"><i class="fa fa-upload"></i> New Ethics Submission</h2>
+        
+        <!-- Template warning -->
+        <div class="template-warning">
+            <i class="fa fa-exclamation-triangle" style="color: var(--gold); margin-right: 8px;"></i>
+            <strong>Important:</strong> Please make sure you download and use these templates for proposals:
+            <a href="#" onclick="downloadTemplate('observational'); return false;">Template for Proposals (Observational studies)</a> | 
+            <a href="#" onclick="downloadTemplate('experimental'); return false;">Template for Proposals (Experimental studies)</a>
+        </div>
+        
         <form id="newSubmissionForm">
+            <!-- Basic Info -->
             <div class="form-group">
                 <label>Protocol Title *</label>
                 <input type="text" id="newTitle" placeholder="e.g., Effectiveness of malaria prevention in rural areas" required>
             </div>
             <div class="form-group">
                 <label>Study Description *</label>
-                <textarea id="newDescription" rows="5" placeholder="Objectives, methodology, participant criteria, ethical safeguards..." required></textarea>
+                <textarea id="newDescription" rows="4" placeholder="Objectives, methodology, participant criteria, ethical safeguards..." required></textarea>
             </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Protocol Version (if applicable)</label>
+                    <input type="text" id="protocolVersion" placeholder="Enter protocol version/ revision number...">
+                </div>
+                <div class="form-group">
+                    <label>Study Type</label>
+                    <select id="studyType">
+                        <option>Clinical Trial</option>
+                        <option>Observational Study</option>
+                        <option>Qualitative Research</option>
+                        <option>Implementation Science</option>
+                        <option>Secondary Data Analysis</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Broad Research Areas -->
             <div class="form-group">
-                <label>Study Type</label>
-                <select id="studyType">
-                    <option>Clinical Trial</option>
-                    <option>Observational Study</option>
-                    <option>Qualitative Research</option>
-                    <option>Implementation Science</option>
+                <label>Broad Research Areas</label>
+                <select id="researchAreas" multiple size="3" style="height: auto;">
+                    <option>Artificial Intelligence</option><option>Digital health</option><option>Obstetric/Gyn</option><option>Pediatric</option>
+                    <option>Behavioral and Social Science Research</option><option>Public Health Research</option><option>Health Services Research</option>
+                    <option>Genetic Research</option><option>Biomedical Research</option><option>Population Survey</option><option>Qualitative Research</option>
+                    <option>Interventional Studies</option><option>Observational Studies</option><option>Registry Studies</option>
+                    <option>Ethical and Legal Research</option><option>Climate Change</option><option>Health Economics Research</option><option>Health Systems</option>
                 </select>
+                <small style="color: gray;">Hold Ctrl/Cmd to select multiple</small>
             </div>
+            
+            <!-- Disease Focus -->
             <div class="form-group">
-                <label>Supporting documents (simulated)</label>
-                <input type="file" multiple accept=".pdf,.doc">
-                <small style="color:gray">Demo: file upload placeholder (integration ready)</small>
+                <label>Disease Focus</label>
+                <select id="diseaseFocus" multiple size="3">
+                    <option>Mental Health</option></option><option>Diabetes</option><option>Hypertension</option>
+                    <option>Stroke</option><option>Cancer</option><option>HIV</option><option>TB</option><option>Malaria</option>
+                    <option>COVID-19</option><option>M-pox</option><option>Cholera<option>Neglected Tropical Diseases</option><option>Other</option>
+                </select>
+                <small style="color: gray;">Hold Ctrl/Cmd to select multiple</small>
             </div>
+            
+            <!-- PI Information -->
+            <div class="form-section">
+                <h3><i class="fa fa-user-md"></i> Principal Investigator (PI)</h3>
+                <div class="form-row">
+                    <div class="form-group"><label>PI's Name *</label><input type="text" id="piName" placeholder="Enter PI's full name..."></div>
+                    <div class="form-group"><label>PI's Qualifications</label><input type="text" id="piQualifications" placeholder="Enter PI's qualifications..."></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>PI's Email *</label><input type="email" id="piEmail" placeholder="Enter PI's email here..."></div>
+                    <div class="form-group"><label>PI's Phone</label><input type="text" id="piPhone" placeholder="Enter PI's phone here..."></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>PI's Affiliated Institution</label><input type="text" id="piInstitution" placeholder="PI's affiliated institution"></div>
+                    <div class="form-group"><label>PI's Nationality</label><input type="text" id="piNationality" placeholder="Enter PI's nationality here..."></div>
+                </div>
+                <div class="form-group">
+                    <label>Does PI have a certificate of GCP?</label>
+                    <select id="piGcp"><option value="">Select</option><option>Yes</option><option>No</option></select>
+                </div>
+            </div>
+            
+            <!-- Co-Investigators -->
+            <div class="form-section">
+                <h3><i class="fa fa-users"></i> Co-Investigators</h3>
+                <div id="coInvestigatorsContainer"></div>
+                <button type="button" class="btn-sm" onclick="addCoInvestigator()" style="background: var(--primary-light);"><i class="fa fa-plus"></i> Add Co-Investigator</button>
+            </div>
+            
+            <!-- Experience -->
+            <div class="form-group">
+                <label>State the experience of the PI and co-investigators in the study in the field concerned, and their role will be on the project.</label>
+                <textarea id="teamExperience" rows="3" placeholder="Describe relevant experience and roles..."></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group"><label>Are International Collaborators involved?</label><select id="internationalCollab"><option>No</option><option>Yes</option></select></div>
+                <div class="form-group"><label>Are you a Student?</label><select id="isStudent"><option>No</option><option>Yes</option></select></div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group"><label>Study Duration (In terms of Months)</label><input type="number" id="studyDuration" placeholder="Enter study duration here..."></div>
+                <div class="form-group"><label>Funder/Sponsor</label><input type="text" id="funder" placeholder="Enter study funder here..."></div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group"><label>Is it a multicountry study?</label><select id="multiCountry"><option>No</option><option>Yes</option></select></div>
+                <div class="form-group"><label>Study Site</label><select id="studySites" multiple size="3"><option>Ethiopia</option><option>Kenya</option><option>Nigeria</option><option>South Africa</option><option>Ghana</option><option>Uganda</option><option>Tanzania</option><option>Rwanda</option><option>Senegal</option><option>Egypt</option><option>Morocco</option><option>Other</option></select><small>Multiple selection allowed</small></div>
+            </div>
+            
+            <!-- Compliance Questions -->
+            <div class="form-group"><label>Does this study involve the taking of blood and/or any other biological samples?</label><select id="bioSamples"><option>Select correct response</option><option>Yes</option><option>No</option></select></div>
+            <div class="form-group"><label>Does this study involve shipment of biological samples outside host countries?</label><select id="shipSamples"><option>Select correct response</option><option>Yes</option><option>No</option></select></div>
+            <div class="form-group"><label>Does this study going to involve data transfer outside host countries?</label><select id="dataTransfer"><option>Select correct response</option><option>Yes</option><option>No</option></select></div>
+            <div class="form-group"><label>Provide details of all ethical clearances sought or obtained from any other ethics committees.</label><textarea id="otherEthics" rows="3" placeholder="Institution, approval number, date..."></textarea></div>
+            
+            <!-- Attachments -->
+            <div class="form-section">
+                <h3><i class="fa fa-paperclip"></i> Attachments</h3>
+                <div class="attachment-grid">
+                    <div class="attachment-item"><label>Cover Letter signed by the PI</label><input type="file"></div>
+                    <div class="attachment-item"><label>Full Study Proposal</label><input type="file"></div>
+                    <div class="attachment-item"><label>Commitment Letters (Institutional or Member states)</label><input type="file"></div>
+                    <div class="attachment-item"><label>CVs and composition of the Research team</label><input type="file"></div>
+                    <div class="attachment-item"><label>Written Information for participants</label><input type="file"></div>
+                    <div class="attachment-item"><label>Consent Forms (English and Swahili)</label><input type="file"></div>
+                    <div class="attachment-item"><label>IRB Approval Certificate (If applicable)</label><input type="file"></div>
+                    <div class="attachment-item"><label>Data Collection Tools</label><input type="file"></div>
+                    <div class="attachment-item"><label>DTA/MTA (If Applicable)</label><input type="file"></div>
+                </div>
+            </div>
+            
             <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                 <button type="submit" class="btn-primary-sm" style="padding: 0.7rem 1.5rem;"><i class="fa fa-paper-plane"></i> Submit to Review</button>
                 <button type="button" class="btn-outline-sm" onclick="closeNewSubmissionModal()">Cancel</button>
@@ -547,10 +731,9 @@
 
 <div id="alertMessage" class="alert"></div>
 
-<!-- ==================== FOOTER with full details ==================== -->
+<!-- FOOTER with added template resources -->
 <footer class="footer">
     <div class="footer-container">
-        <!-- Address & Contact -->
         <div class="footer-section">
             <h4><i class="fa fa-map-marker"></i> Africa CDC Headquarters</h4>
             <p><i class="fa fa-location-arrow"></i> 16/17, Addis Ababa, Ethiopia</p>
@@ -558,7 +741,6 @@
             <p><i class="fa fa-envelope"></i> support@africacdc.org</p>
         </div>
         
-        <!-- Navigate -->
         <div class="footer-section">
             <h4><i class="fa fa-compass"></i> Navigate</h4>
             <a href="https://khub.africacdc.org/" target="_blank" rel="noopener"><i class="fa fa-graduation-cap"></i> KnowledgeHub Portal</a>
@@ -566,18 +748,18 @@
             <a href="#" onclick="showAlert('Privacy Policy document (PDF) will be available soon', 'info'); return false;"><i class="fa fa-lock"></i> Privacy Policy</a>
         </div>
         
-        <!-- Resources -->
         <div class="footer-section">
             <h4><i class="fa fa-book"></i> Resources</h4>
+            <a href="#" onclick="downloadTemplate('observational'); return false;"><i class="fa fa-file-text"></i> Template for Proposals (Observational studies)</a>
+            <a href="#" onclick="downloadTemplate('experimental'); return false;"><i class="fa fa-file-text"></i> Template for Proposals (Experimental studies)</a>
             <a href="#" onclick="showAlert('User Guide – Comprehensive guide for researchers', 'info'); return false;"><i class="fa fa-users"></i> User Guide</a>
             <a href="#" onclick="showAlert('Standard Operating Procedures for Ethical Review', 'info'); return false;"><i class="fa fa-file-text"></i> The Standard Operating Procedures</a>
             <a href="#" onclick="showAlert('Africa CDC Ethics Guidelines – official document', 'info'); return false;"><i class="fa fa-balance-scale"></i> Ethics Guidelines</a>
             <a href="#" onclick="showAlert('Checklist for ethical clearance application submission', 'info'); return false;"><i class="fa fa-check-square-o"></i> Checklist for ethical clearance application submission</a>
             <a href="#" onclick="showAlert('Data transfer agreement template', 'info'); return false;"><i class="fa fa-exchange"></i> Data transfer agreement for researchers/organizations</a>
             <a href="#" onclick="showAlert('Material transfer agreement template', 'info'); return false;"><i class="fa fa-cubes"></i> Material transfer agreement for researchers/organizations</a>
-            </div>
+        </div>
         
-        <!-- Follow us + social -->
         <div class="footer-section">
             <h4><i class="fa fa-share-alt"></i> Follow us</h4>
             <div class="social-links">
@@ -596,7 +778,7 @@
 </footer>
 
 <script>
-    // User session
+    // User session (preserved)
     const currentUser = sessionStorage.getItem('currentUser');
     if (!currentUser) {
         const demoUser = { name: "Dr. Amina Diallo", role: "researcher" };
@@ -624,6 +806,37 @@
     ];
 
     let currentFilter = "all";
+    let coInvestigators = [];
+
+    function addCoInvestigator() {
+        coInvestigators.push({ name: "", email: "", gcp: "" });
+        renderCoInvestigators();
+    }
+    function removeCoInvestigator(idx) {
+        coInvestigators.splice(idx, 1);
+        renderCoInvestigators();
+    }
+    function renderCoInvestigators() {
+        const container = document.getElementById("coInvestigatorsContainer");
+        if (!container) return;
+        container.innerHTML = coInvestigators.map((c, idx) => `
+            <div style="background: white; border: 1px solid var(--gray-border); border-radius: 12px; padding: 0.8rem; margin-bottom: 0.8rem;">
+                <div class="form-row">
+                    <div class="form-group"><label>Investigator's Name</label><input type="text" class="co-name" data-idx="${idx}" value="${c.name.replace(/"/g, '&quot;')}" placeholder="Investigator's Name"></div>
+                    <div class="form-group"><label>Investigator's Email</label><input type="email" class="co-email" data-idx="${idx}" value="${c.email}" placeholder="Investigator's Email"></div>
+                </div>
+                <div class="form-group"><label>Does Co-Investigator have certificate of GCP?</label><select class="co-gcp" data-idx="${idx}"><option ${c.gcp === 'Yes' ? 'selected' : ''}>Select</option><option ${c.gcp === 'Yes' ? 'selected' : ''}>Yes</option><option ${c.gcp === 'No' ? 'selected' : ''}>No</option></select></div>
+                <button type="button" class="btn-sm" onclick="removeCoInvestigator(${idx})" style="background: #fee;"><i class="fa fa-trash"></i> Remove</button>
+            </div>
+        `).join('');
+        document.querySelectorAll('.co-name').forEach(inp => inp.addEventListener('change', function() { coInvestigators[this.dataset.idx].name = this.value; }));
+        document.querySelectorAll('.co-email').forEach(inp => inp.addEventListener('change', function() { coInvestigators[this.dataset.idx].email = this.value; }));
+        document.querySelectorAll('.co-gcp').forEach(sel => sel.addEventListener('change', function() { coInvestigators[this.dataset.idx].gcp = this.value; }));
+    }
+
+    function downloadTemplate(type) {
+        showAlert(`Downloading ${type === 'observational' ? 'Observational Study Proposal Template' : 'Experimental Study Proposal Template'} - PDF template ready for use.`, "info");
+    }
 
     function updateStatsAndFilters() {
         const total = submissions.length;
@@ -659,16 +872,37 @@
         const container = document.getElementById("submissionsContainer");
         if (filtered.length === 0) { container.innerHTML = `<div class="empty-state"><i class="fa fa-inbox fa-3x"></i><p>No submissions match filter</p><button class="btn-primary-sm" onclick="openNewSubmissionModal()"><i class="fa fa-plus"></i> Create new</button></div>`; return; }
         container.innerHTML = filtered.map(sub => { const statusClass = sub.currentStage.replace('-',''); const progress = getProgressWidth(sub.currentStage);
-            return `<div class="submission-card"><div class="card-header-row"><div><span class="submission-id">${sub.id}</span><div class="submission-title">${sub.title}</div></div><span class="status-badge status-${statusClass}"><i class="fa ${getStageIcon(sub.currentStage)}"></i> ${getStageName(sub.currentStage)}</span></div><div class="submission-meta"><span><i class="fa fa-calendar"></i> ${sub.submittedDate}</span><span><i class="fa fa-file-text"></i> ${sub.documents.length} doc(s)</span><span><i class="fa fa-commenting"></i> ${sub.comments.length} comment(s)</span></div><div class="timeline-progress"><div class="progress-fill" style="width: ${progress}%;"></div></div><div class="card-actions"><button class="btn-outline-sm" onclick="viewSubmission('${sub.id}')"><i class="fa fa-eye"></i> Details</button>${sub.currentStage.includes('revision') ? `<button class="btn-primary-sm" onclick="editSubmission('${sub.id}')"><i class="fa fa-upload"></i> Revise & Resubmit</button>` : ''}<button class="btn-outline-sm" onclick="viewTimeline('${sub.id}')"><i class="fa fa-history"></i> Timeline</button></div></div>`; }).join('');
+            return `<div class="submission-card"><div class="card-header-row"><div><span class="submission-id">${sub.id}</span><div class="submission-title">${sub.title}</div></div><span class="status-badge status-${statusClass}"><i class="fa ${getStageIcon(sub.currentStage)}"></i> ${getStageName(sub.currentStage)}</span></div><div class="submission-meta"><span><i class="fa fa-calendar"></i> ${sub.submittedDate}</span><span><i class="fa fa-file-text"></i> ${sub.documents ? sub.documents.length : 0} doc(s)</span><span><i class="fa fa-commenting"></i> ${sub.comments ? sub.comments.length : 0} comment(s)</span></div><div class="timeline-progress"><div class="progress-fill" style="width: ${progress}%;"></div></div><div class="card-actions"><button class="btn-outline-sm" onclick="viewSubmission('${sub.id}')"><i class="fa fa-eye"></i> Details</button>${sub.currentStage.includes('revision') ? `<button class="btn-primary-sm" onclick="editSubmission('${sub.id}')"><i class="fa fa-upload"></i> Revise & Resubmit</button>` : ''}<button class="btn-outline-sm" onclick="viewTimeline('${sub.id}')"><i class="fa fa-history"></i> Timeline</button></div></div>`; }).join('');
     }
 
-    function viewSubmission(id) { const sub = submissions.find(s => s.id === id); if (!sub) return; document.getElementById("modalTitle").innerHTML = `${sub.id}: ${sub.title}`; document.getElementById("modalContent").innerHTML = `<div><strong>Description</strong><p style="background:#F4F7F9; padding:12px; border-radius:16px;">${sub.description}</p></div><div><strong>Documents</strong><ul>${sub.documents.map(d => `<li><i class="fa fa-file-pdf-o"></i> ${d}</li>`).join('') || '<li>No documents</li>'}</ul></div>${sub.comments.length ? `<div class="comments-section"><strong>Reviewer Feedback</strong>${sub.comments.map(c => `<div><b>${c.author}</b> <span style="color:gray">${c.date}</span><p>${c.text}</p></div>`).join('')}</div>` : '<p>No comments yet</p>'}${sub.currentStage.includes('revision') ? `<div style="margin-top:1rem; background:#FFF2DF; padding:1rem; border-radius:20px;"><strong>Revision requested</strong><p>Please address comments and resubmit.</p><button class="btn-primary-sm" onclick="closeModal(); editSubmission('${sub.id}')">Revise now</button></div>` : ''}`; document.getElementById("submissionModal").style.display = "block"; }
+    function viewSubmission(id) { const sub = submissions.find(s => s.id === id); if (!sub) return; document.getElementById("modalTitle").innerHTML = `${sub.id}: ${sub.title}`; document.getElementById("modalContent").innerHTML = `<div><strong>Description</strong><p style="background:#F4F7F9; padding:12px; border-radius:16px;">${sub.description}</p></div><div><strong>Documents</strong><ul>${sub.documents ? sub.documents.map(d => `<li><i class="fa fa-file-pdf-o"></i> ${d}</li>`).join('') : '<li>No documents</li>'}</ul></div>${sub.comments && sub.comments.length ? `<div class="comments-section"><strong>Reviewer Feedback</strong>${sub.comments.map(c => `<div><b>${c.author}</b> <span style="color:gray">${c.date}</span><p>${c.text}</p></div>`).join('')}</div>` : '<p>No comments yet</p>'}${sub.currentStage.includes('revision') ? `<div style="margin-top:1rem; background:#FFF2DF; padding:1rem; border-radius:20px;"><strong>Revision requested</strong><p>Please address comments and resubmit.</p><button class="btn-primary-sm" onclick="closeModal(); editSubmission('${sub.id}')">Revise now</button></div>` : ''}`; document.getElementById("submissionModal").style.display = "block"; }
     function viewTimeline(id) { const sub = submissions.find(s => s.id === id); if (!sub || !sub.timeline) { showAlert("Timeline details will be fully integrated with SharePoint", "info"); return; } document.getElementById("modalTitle").innerHTML = `Timeline · ${sub.id}`; document.getElementById("modalContent").innerHTML = `<table style="width:100%; border-collapse: collapse;"><thead><tr><th>Date</th><th>Stage</th><th>Action</th><th>Actor</th></tr></thead><tbody>${sub.timeline.map(t => `<tr><td>${t.date}</td><td>${getStageName(t.stage)}</td><td>${t.action}</td><td>${t.actor}</td></tr>`).join('')}</tbody></table><div style="margin-top:1rem"><strong>Current:</strong> ${getStageName(sub.currentStage)}</div>`; document.getElementById("submissionModal").style.display = "block"; }
     function editSubmission(id) { showAlert("Revision portal: upload revised documents & respond to reviewer comments (integrated with SharePoint)", "info"); }
-    function openNewSubmissionModal() { document.getElementById("newSubmissionModal").style.display = "block"; }
-    function closeNewSubmissionModal() { document.getElementById("newSubmissionModal").style.display = "none"; document.getElementById("newSubmissionForm").reset(); }
+    function openNewSubmissionModal() { coInvestigators = []; renderCoInvestigators(); document.getElementById("newSubmissionModal").style.display = "block"; }
+    function closeNewSubmissionModal() { document.getElementById("newSubmissionModal").style.display = "none"; document.getElementById("newSubmissionForm").reset(); coInvestigators = []; renderCoInvestigators(); }
     function closeModal() { document.getElementById("submissionModal").style.display = "none"; }
-    function newSubmission() { const title = document.getElementById("newTitle").value.trim(); const description = document.getElementById("newDescription").value.trim(); if (!title || !description) { showAlert("Title and description are required", "error"); return; } const studyType = document.getElementById("studyType").value; const newId = `ERC-2025-${String(submissions.length + 105).slice(-3)}`; const newSub = { id: newId, title: title, currentStage: "pending", submittedDate: new Date().toISOString().split('T')[0], description: `${description}\n\nStudy Type: ${studyType}`, documents: [], comments: [], timeline: [{ stage: "pending", date: new Date().toISOString().split('T')[0], action: "Initial submission", actor: user.name }] }; submissions.unshift(newSub); showAlert(`Submission ${newId} created!`, "success"); closeNewSubmissionModal(); updateStatsAndFilters(); renderSubmissions(); }
+    function newSubmission() { 
+        const title = document.getElementById("newTitle").value.trim(); 
+        const description = document.getElementById("newDescription").value.trim(); 
+        if (!title || !description) { showAlert("Title and description are required", "error"); return; }
+        const piName = document.getElementById("piName").value.trim();
+        if (!piName) { showAlert("Principal Investigator's Name is required", "error"); return; }
+        const piEmail = document.getElementById("piEmail").value.trim();
+        if (!piEmail) { showAlert("Principal Investigator's Email is required", "error"); return; }
+        const studyType = document.getElementById("studyType").value;
+        const newId = `ERC-2025-${String(submissions.length + 105).slice(-3)}`;
+        const newSub = { 
+            id: newId, title: title, currentStage: "pending", submittedDate: new Date().toISOString().split('T')[0], 
+            description: `${description}\n\nStudy Type: ${studyType}\nPI: ${piName} (${piEmail})`, 
+            documents: [], comments: [], 
+            timeline: [{ stage: "pending", date: new Date().toISOString().split('T')[0], action: "Initial submission", actor: user.name }] 
+        }; 
+        submissions.unshift(newSub); 
+        showAlert(`Submission ${newId} created!`, "success"); 
+        closeNewSubmissionModal(); 
+        updateStatsAndFilters(); 
+        renderSubmissions(); 
+    }
     function showAlert(msg, type) { const alertDiv = document.getElementById("alertMessage"); alertDiv.style.background = type === "error" ? "#DC4C4C" : (type === "success" ? "#1E6F5C" : "#0F3B2C"); alertDiv.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation' : 'info-circle'}"></i> ${msg}`; alertDiv.style.display = "block"; setTimeout(() => alertDiv.style.display = "none", 3800); }
     function logout() { sessionStorage.removeItem('currentUser'); showAlert("Logged out", "info"); setTimeout(() => window.location.href = 'index.html', 500); }
 
@@ -677,7 +911,8 @@
     window.onclick = (e) => { if (e.target.classList.contains("modal")) { closeModal(); closeNewSubmissionModal(); } };
     window.viewSubmission = viewSubmission; window.viewTimeline = viewTimeline; window.editSubmission = editSubmission;
     window.openNewSubmissionModal = openNewSubmissionModal; window.closeNewSubmissionModal = closeNewSubmissionModal;
-    window.closeModal = closeModal; window.logout = logout;
+    window.closeModal = closeModal; window.logout = logout; window.addCoInvestigator = addCoInvestigator; window.removeCoInvestigator = removeCoInvestigator;
+    window.downloadTemplate = downloadTemplate;
     updateStatsAndFilters(); renderSubmissions();
 </script>
 </body>
