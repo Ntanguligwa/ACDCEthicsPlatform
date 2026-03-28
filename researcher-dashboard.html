@@ -264,6 +264,7 @@
         .status-majorrevision { background: #FFE8E0; color: #C94F2C; }
         .status-approved { background: #E0F2E9; color: #1E6F5C; }
         .status-rejected { background: #FFEAED; color: #D14545; }
+        .status-draft { background: #E9ECEF; color: #495057; }
 
         .submission-meta {
             display: flex;
@@ -319,6 +320,14 @@
             background: #F1F5F9;
             border-color: var(--primary);
         }
+        .btn-draft-sm {
+            background: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+        .btn-draft-sm:hover {
+            background: #5a6268;
+        }
 
         /* Modal styles */
         .modal {
@@ -339,8 +348,9 @@
             padding: 1.8rem;
             border-radius: 32px;
             width: 90%;
-            max-width: 720px;
+            max-width: 950px;
             animation: fadeUp 0.25s ease;
+            position: relative;
         }
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px);}
@@ -387,7 +397,7 @@
             color: var(--text-muted);
         }
         
-        /* New styles for form sections */
+        /* Form sections */
         .form-section {
             background: #F9FCFB;
             border-radius: 20px;
@@ -413,35 +423,6 @@
             flex: 1;
             min-width: 180px;
         }
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            margin-top: 0.5rem;
-        }
-        .checkbox-group label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: normal;
-            font-size: 0.85rem;
-        }
-        .checkbox-group input {
-            width: auto;
-        }
-        .template-warning {
-            background: var(--gold-light);
-            border-left: 4px solid var(--gold);
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-        }
-        .template-warning a {
-            color: var(--primary);
-            text-decoration: underline;
-            cursor: pointer;
-        }
         .attachment-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -462,8 +443,48 @@
             font-size: 0.75rem;
             padding: 0.4rem;
         }
+        .template-warning {
+            background: var(--gold-light);
+            border-left: 4px solid var(--gold);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .template-warning a {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .auto-save-indicator {
+            position: sticky;
+            top: 0;
+            background: var(--primary-light);
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 1rem;
+            color: var(--primary-deep);
+        }
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .draft-badge {
+            font-size: 0.7rem;
+            background: #6c757d;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            margin-left: 8px;
+        }
 
-        /* ========== FOOTER STYLES ========== */
+        /* Footer */
         .footer {
             background: #0A2A20;
             color: #E0E7E5;
@@ -520,10 +541,6 @@
             border-radius: 40px;
             font-size: 0.8rem;
         }
-        .social-links a i {
-            margin-right: 0;
-            font-size: 1rem;
-        }
         .footer-bottom {
             text-align: center;
             padding-top: 2rem;
@@ -555,7 +572,6 @@
 </nav>
 
 <div class="dashboard-container">
-    <!-- QUICK ACTION HERO - topmost, core initiator -->
     <div class="quick-action-hero">
         <div class="hero-text">
             <h2><i class="fa fa-file-text-o"></i> New ethical submission</h2>
@@ -566,23 +582,22 @@
         </button>
     </div>
 
-    <!-- Compact stats row -->
     <div class="stats-mini-row" id="compactStats"></div>
-
-    <!-- Unified filter tabs -->
     <div class="filter-tabs" id="filterTabsContainer"></div>
-
-    <!-- Submissions list -->
     <div id="submissionsContainer" class="submissions-grid"></div>
 </div>
 
-<!-- New Submission Modal - ENHANCED with all requested fields -->
+<!-- New Submission Modal with Auto-save and Draft functionality -->
 <div id="newSubmissionModal" class="modal">
-    <div class="modal-content" style="max-width: 950px;">
+    <div class="modal-content">
         <span class="close-modal" style="float: right; font-size: 28px; cursor: pointer;" onclick="closeNewSubmissionModal()">&times;</span>
-        <h2 style="margin-bottom: 1rem;"><i class="fa fa-upload"></i> New Ethics Submission</h2>
+        <h2 style="margin-bottom: 0.5rem;"><i class="fa fa-upload"></i> New Ethics Submission</h2>
         
-        <!-- Template warning -->
+        <!-- Auto-save indicator -->
+        <div class="auto-save-indicator" id="autoSaveIndicator">
+            <i class="fa fa-cloud-upload"></i> <span id="saveStatus">Changes auto-saved</span>
+        </div>
+        
         <div class="template-warning">
             <i class="fa fa-exclamation-triangle" style="color: var(--gold); margin-right: 8px;"></i>
             <strong>Important:</strong> Please make sure you download and use these templates for proposals:
@@ -591,57 +606,41 @@
         </div>
         
         <form id="newSubmissionForm">
-            <!-- Basic Info -->
             <div class="form-group">
                 <label>Protocol Title *</label>
-                <input type="text" id="newTitle" placeholder="e.g., Effectiveness of malaria prevention in rural areas" required>
+                <input type="text" id="newTitle" placeholder="e.g., Effectiveness of malaria prevention in rural areas">
             </div>
             <div class="form-group">
                 <label>Study Description *</label>
-                <textarea id="newDescription" rows="4" placeholder="Objectives, methodology, participant criteria, ethical safeguards..." required></textarea>
+                <textarea id="newDescription" rows="4" placeholder="Objectives, methodology, participant criteria, ethical safeguards..."></textarea>
             </div>
             <div class="form-row">
-                <div class="form-group">
-                    <label>Protocol Version (if applicable)</label>
-                    <input type="text" id="protocolVersion" placeholder="Enter protocol version/ revision number...">
-                </div>
-                <div class="form-group">
-                    <label>Study Type</label>
-                    <select id="studyType">
-                        <option>Clinical Trial</option>
-                        <option>Observational Study</option>
-                        <option>Qualitative Research</option>
-                        <option>Implementation Science</option>
-                        <option>Secondary Data Analysis</option>
-                    </select>
-                </div>
+                <div class="form-group"><label>Protocol Version</label><input type="text" id="protocolVersion" placeholder="Enter protocol version/ revision number..."></div>
+                <div class="form-group"><label>Study Type</label><select id="studyType"><option>Clinical Trial</option><option>Observational Study</option><option>Qualitative Research</option><option>Implementation Science</option><option>Secondary Data Analysis</option></select></div>
             </div>
             
-            <!-- Broad Research Areas -->
             <div class="form-group">
                 <label>Broad Research Areas</label>
-                <select id="researchAreas" multiple size="3" style="height: auto;">
+                <select id="researchAreas" multiple size="3">
                     <option>Artificial Intelligence</option><option>Digital health</option><option>Obstetric/Gyn</option><option>Pediatric</option>
                     <option>Behavioral and Social Science Research</option><option>Public Health Research</option><option>Health Services Research</option>
                     <option>Genetic Research</option><option>Biomedical Research</option><option>Population Survey</option><option>Qualitative Research</option>
                     <option>Interventional Studies</option><option>Observational Studies</option><option>Registry Studies</option>
                     <option>Ethical and Legal Research</option><option>Climate Change</option><option>Health Economics Research</option><option>Health Systems</option>
                 </select>
-                <small style="color: gray;">Hold Ctrl/Cmd to select multiple</small>
+                <small>Hold Ctrl/Cmd to select multiple</small>
             </div>
             
-            <!-- Disease Focus -->
             <div class="form-group">
                 <label>Disease Focus</label>
                 <select id="diseaseFocus" multiple size="3">
-                    <option>Mental Health</option></option><option>Diabetes</option><option>Hypertension</option>
+                    <option>Non-communicable diseases</option><option>Infectious diseases</option><option>Diabetes</option><option>Hypertension</option>
                     <option>Stroke</option><option>Cancer</option><option>HIV</option><option>TB</option><option>Malaria</option>
-                    <option>COVID-19</option><option>M-pox</option><option>Cholera<option>Neglected Tropical Diseases</option><option>Other</option>
+                    <option>COVID-19</option><option>Neglected Tropical Diseases</option><option>Other</option>
                 </select>
-                <small style="color: gray;">Hold Ctrl/Cmd to select multiple</small>
+                <small>Hold Ctrl/Cmd to select multiple</small>
             </div>
             
-            <!-- PI Information -->
             <div class="form-section">
                 <h3><i class="fa fa-user-md"></i> Principal Investigator (PI)</h3>
                 <div class="form-row">
@@ -656,20 +655,15 @@
                     <div class="form-group"><label>PI's Affiliated Institution</label><input type="text" id="piInstitution" placeholder="PI's affiliated institution"></div>
                     <div class="form-group"><label>PI's Nationality</label><input type="text" id="piNationality" placeholder="Enter PI's nationality here..."></div>
                 </div>
-                <div class="form-group">
-                    <label>Does PI have a certificate of GCP?</label>
-                    <select id="piGcp"><option value="">Select</option><option>Yes</option><option>No</option></select>
-                </div>
+                <div class="form-group"><label>Does PI have a certificate of GCP?</label><select id="piGcp"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
             </div>
             
-            <!-- Co-Investigators -->
             <div class="form-section">
                 <h3><i class="fa fa-users"></i> Co-Investigators</h3>
                 <div id="coInvestigatorsContainer"></div>
                 <button type="button" class="btn-sm" onclick="addCoInvestigator()" style="background: var(--primary-light);"><i class="fa fa-plus"></i> Add Co-Investigator</button>
             </div>
             
-            <!-- Experience -->
             <div class="form-group">
                 <label>State the experience of the PI and co-investigators in the study in the field concerned, and their role will be on the project.</label>
                 <textarea id="teamExperience" rows="3" placeholder="Describe relevant experience and roles..."></textarea>
@@ -690,13 +684,11 @@
                 <div class="form-group"><label>Study Site</label><select id="studySites" multiple size="3"><option>Ethiopia</option><option>Kenya</option><option>Nigeria</option><option>South Africa</option><option>Ghana</option><option>Uganda</option><option>Tanzania</option><option>Rwanda</option><option>Senegal</option><option>Egypt</option><option>Morocco</option><option>Other</option></select><small>Multiple selection allowed</small></div>
             </div>
             
-            <!-- Compliance Questions -->
             <div class="form-group"><label>Does this study involve the taking of blood and/or any other biological samples?</label><select id="bioSamples"><option>Select correct response</option><option>Yes</option><option>No</option></select></div>
             <div class="form-group"><label>Does this study involve shipment of biological samples outside host countries?</label><select id="shipSamples"><option>Select correct response</option><option>Yes</option><option>No</option></select></div>
             <div class="form-group"><label>Does this study going to involve data transfer outside host countries?</label><select id="dataTransfer"><option>Select correct response</option><option>Yes</option><option>No</option></select></div>
             <div class="form-group"><label>Provide details of all ethical clearances sought or obtained from any other ethics committees.</label><textarea id="otherEthics" rows="3" placeholder="Institution, approval number, date..."></textarea></div>
             
-            <!-- Attachments -->
             <div class="form-section">
                 <h3><i class="fa fa-paperclip"></i> Attachments</h3>
                 <div class="attachment-grid">
@@ -712,8 +704,9 @@
                 </div>
             </div>
             
-            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                <button type="submit" class="btn-primary-sm" style="padding: 0.7rem 1.5rem;"><i class="fa fa-paper-plane"></i> Submit to Review</button>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary-sm" style="padding: 0.7rem 1.5rem;"><i class="fa fa-paper-plane"></i> Submit for Review</button>
+                <button type="button" class="btn-draft-sm" onclick="saveAsDraft()" style="padding: 0.7rem 1.5rem;"><i class="fa fa-save"></i> Save as Draft</button>
                 <button type="button" class="btn-outline-sm" onclick="closeNewSubmissionModal()">Cancel</button>
             </div>
         </form>
@@ -731,7 +724,6 @@
 
 <div id="alertMessage" class="alert"></div>
 
-<!-- FOOTER with added template resources -->
 <footer class="footer">
     <div class="footer-container">
         <div class="footer-section">
@@ -778,7 +770,7 @@
 </footer>
 
 <script>
-    // User session (preserved)
+    // User session
     const currentUser = sessionStorage.getItem('currentUser');
     if (!currentUser) {
         const demoUser = { name: "Dr. Amina Diallo", role: "researcher" };
@@ -786,28 +778,131 @@
     }
     const user = JSON.parse(sessionStorage.getItem('currentUser') || '{"name":"Dr. Amina Diallo"}');
     
-    const workflowOrder = ["pending", "screening", "assigned", "review", "minor-revision", "major-revision", "committee", "approved", "rejected"];
+    const workflowOrder = ["draft", "pending", "screening", "assigned", "review", "minor-revision", "major-revision", "committee", "approved", "rejected"];
     function getStageIndex(stage) { return workflowOrder.indexOf(stage); }
     function getStageName(stageKey) {
-        const map = { pending: "Pending", screening: "Initial Screening", assigned: "Assigned to Reviewers", review: "Under Review", "minor-revision": "Minor Revision", "major-revision": "Major Revision", committee: "Committee Review", approved: "Approved", rejected: "Rejected" };
+        const map = { draft: "Draft", pending: "Pending", screening: "Initial Screening", assigned: "Assigned to Reviewers", review: "Under Review", "minor-revision": "Minor Revision", "major-revision": "Major Revision", committee: "Committee Review", approved: "Approved", rejected: "Rejected" };
         return map[stageKey] || stageKey;
     }
     function getStageIcon(stage) {
-        const icons = { pending:"fa-hourglass-half", screening:"fa-filter", assigned:"fa-users", review:"fa-search", "minor-revision":"fa-edit", "major-revision":"fa-pencil-square-o", committee:"fa-group", approved:"fa-check-circle", rejected:"fa-ban" };
+        const icons = { draft:"fa-pencil-square-o", pending:"fa-hourglass-half", screening:"fa-filter", assigned:"fa-users", review:"fa-search", "minor-revision":"fa-edit", "major-revision":"fa-pencil-square-o", committee:"fa-group", approved:"fa-check-circle", rejected:"fa-ban" };
         return icons[stage] || "fa-circle";
     }
 
     let submissions = [
-        { id: "ERC-2025-001", title: "COVID-19 Vaccine Efficacy in East Africa", currentStage: "minor-revision", submittedDate: "2025-02-15", description: "RCT evaluating vaccine efficacy across 5 countries. Includes stratified analysis.", documents: ["protocol_v2.pdf", "consent_form.pdf"], comments: [{ author: "Reviewer", date: "2025-03-10", text: "Please clarify sample size calculation and randomization details." }], timeline: [{ stage: "pending", date: "2025-02-15", action: "Submitted", actor: user.name }, { stage: "minor-revision", date: "2025-03-10", action: "Revision required", actor: "Ethics Committee" }] },
-        { id: "ERC-2025-002", title: "Malaria Prevention in Children Under 5", currentStage: "review", submittedDate: "2025-02-28", description: "Community intervention with bed net distribution + education.", documents: ["protocol.pdf"], comments: [{ author: "Dr. Omondi", date: "2025-03-12", text: "Strong design, awaiting CHW training details." }], timeline: [{ stage: "pending", date: "2025-02-28", action: "Submitted", actor: user.name }, { stage: "review", date: "2025-03-12", action: "Under review", actor: "Reviewer" }] },
-        { id: "ERC-2025-003", title: "Ethical Framework for AI in Healthcare", currentStage: "approved", submittedDate: "2025-01-10", description: "Guidelines for AI implementation, data privacy, bias.", documents: ["framework.pdf"], comments: [{ author: "Ethics Committee", date: "2025-03-01", text: "Approved with congratulations." }], timeline: [{ stage: "approved", date: "2025-03-01", action: "Final approval", actor: "Committee" }] },
-        { id: "ERC-2025-004", title: "Mobile Health for Maternal Care", currentStage: "major-revision", submittedDate: "2025-01-20", description: "mHealth app vs SMS reminders for ANC attendance.", documents: ["proposal.pdf"], comments: [{ author: "Review Board", date: "2025-02-28", text: "Major revisions: clarify data privacy protocols and consent process." }], timeline: [{ stage: "major-revision", date: "2025-02-28", action: "Major revisions needed", actor: "Review Committee" }] },
-        { id: "ERC-2025-005", title: "TB Treatment Adherence in Urban Settings", currentStage: "pending", submittedDate: "2025-03-20", description: "Mixed-methods study on adherence barriers.", documents: [], comments: [], timeline: [{ stage: "pending", date: "2025-03-20", action: "Submitted", actor: user.name }] }
+        { id: "ERC-2025-001", title: "COVID-19 Vaccine Efficacy in East Africa", currentStage: "minor-revision", submittedDate: "2025-02-15", description: "RCT evaluating vaccine efficacy across 5 countries.", documents: ["protocol_v2.pdf"], comments: [{ author: "Reviewer", date: "2025-03-10", text: "Please clarify sample size calculation." }], timeline: [{ stage: "pending", date: "2025-02-15", action: "Submitted", actor: user.name }] },
+        { id: "ERC-2025-002", title: "Malaria Prevention in Children Under 5", currentStage: "review", submittedDate: "2025-02-28", description: "Community intervention with bed net distribution.", documents: ["protocol.pdf"], comments: [], timeline: [] },
+        { id: "ERC-2025-003", title: "Ethical Framework for AI in Healthcare", currentStage: "approved", submittedDate: "2025-01-10", description: "Guidelines for AI implementation.", documents: ["framework.pdf"], comments: [], timeline: [] },
+        { id: "ERC-2025-004", title: "Mobile Health for Maternal Care", currentStage: "major-revision", submittedDate: "2025-01-20", description: "mHealth app vs SMS reminders.", documents: ["proposal.pdf"], comments: [], timeline: [] },
+        { id: "ERC-2025-005", title: "TB Treatment Adherence in Urban Settings", currentStage: "pending", submittedDate: "2025-03-20", description: "Mixed-methods study.", documents: [], comments: [], timeline: [] }
     ];
 
     let currentFilter = "all";
     let coInvestigators = [];
+    let autoSaveTimer = null;
+    let currentDraftId = null;
 
+    // Auto-save function
+    function autoSaveForm() {
+        const formData = collectFormData();
+        if (Object.keys(formData).length > 0) {
+            localStorage.setItem('ethics_draft_' + (currentDraftId || 'new'), JSON.stringify(formData));
+            const statusSpan = document.getElementById('saveStatus');
+            if (statusSpan) {
+                statusSpan.innerHTML = 'Saved just now';
+                setTimeout(() => { if(statusSpan) statusSpan.innerHTML = 'Changes auto-saved'; }, 2000);
+            }
+        }
+    }
+    
+    function collectFormData() {
+        return {
+            title: document.getElementById('newTitle')?.value || '',
+            description: document.getElementById('newDescription')?.value || '',
+            protocolVersion: document.getElementById('protocolVersion')?.value || '',
+            studyType: document.getElementById('studyType')?.value || '',
+            researchAreas: Array.from(document.getElementById('researchAreas')?.selectedOptions || []).map(o => o.value),
+            diseaseFocus: Array.from(document.getElementById('diseaseFocus')?.selectedOptions || []).map(o => o.value),
+            piName: document.getElementById('piName')?.value || '',
+            piQualifications: document.getElementById('piQualifications')?.value || '',
+            piEmail: document.getElementById('piEmail')?.value || '',
+            piPhone: document.getElementById('piPhone')?.value || '',
+            piInstitution: document.getElementById('piInstitution')?.value || '',
+            piNationality: document.getElementById('piNationality')?.value || '',
+            piGcp: document.getElementById('piGcp')?.value || '',
+            coInvestigators: coInvestigators,
+            teamExperience: document.getElementById('teamExperience')?.value || '',
+            internationalCollab: document.getElementById('internationalCollab')?.value || '',
+            isStudent: document.getElementById('isStudent')?.value || '',
+            studyDuration: document.getElementById('studyDuration')?.value || '',
+            funder: document.getElementById('funder')?.value || '',
+            multiCountry: document.getElementById('multiCountry')?.value || '',
+            studySites: Array.from(document.getElementById('studySites')?.selectedOptions || []).map(o => o.value),
+            bioSamples: document.getElementById('bioSamples')?.value || '',
+            shipSamples: document.getElementById('shipSamples')?.value || '',
+            dataTransfer: document.getElementById('dataTransfer')?.value || '',
+            otherEthics: document.getElementById('otherEthics')?.value || ''
+        };
+    }
+    
+    function loadDraftData() {
+        const draftKey = localStorage.getItem('last_ethics_draft_key');
+        if (draftKey) {
+            const savedData = localStorage.getItem(draftKey);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                if (document.getElementById('newTitle')) document.getElementById('newTitle').value = data.title || '';
+                if (document.getElementById('newDescription')) document.getElementById('newDescription').value = data.description || '';
+                if (document.getElementById('protocolVersion')) document.getElementById('protocolVersion').value = data.protocolVersion || '';
+                if (document.getElementById('studyType')) document.getElementById('studyType').value = data.studyType || 'Clinical Trial';
+                if (document.getElementById('piName')) document.getElementById('piName').value = data.piName || '';
+                if (document.getElementById('piQualifications')) document.getElementById('piQualifications').value = data.piQualifications || '';
+                if (document.getElementById('piEmail')) document.getElementById('piEmail').value = data.piEmail || '';
+                if (document.getElementById('piPhone')) document.getElementById('piPhone').value = data.piPhone || '';
+                if (document.getElementById('piInstitution')) document.getElementById('piInstitution').value = data.piInstitution || '';
+                if (document.getElementById('piNationality')) document.getElementById('piNationality').value = data.piNationality || '';
+                if (document.getElementById('piGcp')) document.getElementById('piGcp').value = data.piGcp || '';
+                if (data.coInvestigators) { coInvestigators = data.coInvestigators; renderCoInvestigators(); }
+                if (document.getElementById('teamExperience')) document.getElementById('teamExperience').value = data.teamExperience || '';
+                if (document.getElementById('internationalCollab')) document.getElementById('internationalCollab').value = data.internationalCollab || 'No';
+                if (document.getElementById('isStudent')) document.getElementById('isStudent').value = data.isStudent || 'No';
+                if (document.getElementById('studyDuration')) document.getElementById('studyDuration').value = data.studyDuration || '';
+                if (document.getElementById('funder')) document.getElementById('funder').value = data.funder || '';
+                if (document.getElementById('multiCountry')) document.getElementById('multiCountry').value = data.multiCountry || 'No';
+                if (document.getElementById('otherEthics')) document.getElementById('otherEthics').value = data.otherEthics || '';
+                if (document.getElementById('bioSamples')) document.getElementById('bioSamples').value = data.bioSamples || 'Select correct response';
+                if (document.getElementById('shipSamples')) document.getElementById('shipSamples').value = data.shipSamples || 'Select correct response';
+                if (document.getElementById('dataTransfer')) document.getElementById('dataTransfer').value = data.dataTransfer || 'Select correct response';
+                showAlert('Draft loaded successfully', 'info');
+            }
+        }
+    }
+    
+    function saveAsDraft() {
+        const formData = collectFormData();
+        const draftId = 'draft_' + Date.now();
+        localStorage.setItem('ethics_draft_' + draftId, JSON.stringify(formData));
+        localStorage.setItem('last_ethics_draft_key', 'ethics_draft_' + draftId);
+        
+        // Also save as submission with draft status
+        const draftSubmission = {
+            id: `DRAFT-${Date.now().toString().slice(-8)}`,
+            title: formData.title || 'Untitled Draft',
+            currentStage: "draft",
+            submittedDate: new Date().toISOString().split('T')[0],
+            description: formData.description || 'No description',
+            documents: [],
+            comments: [],
+            timeline: [{ stage: "draft", date: new Date().toISOString().split('T')[0], action: "Draft saved", actor: user.name }],
+            draftData: formData
+        };
+        submissions.unshift(draftSubmission);
+        updateStatsAndFilters();
+        renderSubmissions();
+        showAlert('Submission saved as draft! You can continue later.', 'success');
+        closeNewSubmissionModal();
+    }
+    
     function addCoInvestigator() {
         coInvestigators.push({ name: "", email: "", gcp: "" });
         renderCoInvestigators();
@@ -815,6 +910,7 @@
     function removeCoInvestigator(idx) {
         coInvestigators.splice(idx, 1);
         renderCoInvestigators();
+        autoSaveForm();
     }
     function renderCoInvestigators() {
         const container = document.getElementById("coInvestigatorsContainer");
@@ -822,16 +918,16 @@
         container.innerHTML = coInvestigators.map((c, idx) => `
             <div style="background: white; border: 1px solid var(--gray-border); border-radius: 12px; padding: 0.8rem; margin-bottom: 0.8rem;">
                 <div class="form-row">
-                    <div class="form-group"><label>Investigator's Name</label><input type="text" class="co-name" data-idx="${idx}" value="${c.name.replace(/"/g, '&quot;')}" placeholder="Investigator's Name"></div>
-                    <div class="form-group"><label>Investigator's Email</label><input type="email" class="co-email" data-idx="${idx}" value="${c.email}" placeholder="Investigator's Email"></div>
+                    <div class="form-group"><label>Investigator's Name</label><input type="text" class="co-name" data-idx="${idx}" value="${(c.name || '').replace(/"/g, '&quot;')}" placeholder="Investigator's Name"></div>
+                    <div class="form-group"><label>Investigator's Email</label><input type="email" class="co-email" data-idx="${idx}" value="${c.email || ''}" placeholder="Investigator's Email"></div>
                 </div>
                 <div class="form-group"><label>Does Co-Investigator have certificate of GCP?</label><select class="co-gcp" data-idx="${idx}"><option ${c.gcp === 'Yes' ? 'selected' : ''}>Select</option><option ${c.gcp === 'Yes' ? 'selected' : ''}>Yes</option><option ${c.gcp === 'No' ? 'selected' : ''}>No</option></select></div>
                 <button type="button" class="btn-sm" onclick="removeCoInvestigator(${idx})" style="background: #fee;"><i class="fa fa-trash"></i> Remove</button>
             </div>
         `).join('');
-        document.querySelectorAll('.co-name').forEach(inp => inp.addEventListener('change', function() { coInvestigators[this.dataset.idx].name = this.value; }));
-        document.querySelectorAll('.co-email').forEach(inp => inp.addEventListener('change', function() { coInvestigators[this.dataset.idx].email = this.value; }));
-        document.querySelectorAll('.co-gcp').forEach(sel => sel.addEventListener('change', function() { coInvestigators[this.dataset.idx].gcp = this.value; }));
+        document.querySelectorAll('.co-name').forEach(inp => inp.addEventListener('change', function() { coInvestigators[this.dataset.idx].name = this.value; autoSaveForm(); }));
+        document.querySelectorAll('.co-email').forEach(inp => inp.addEventListener('change', function() { coInvestigators[this.dataset.idx].email = this.value; autoSaveForm(); }));
+        document.querySelectorAll('.co-gcp').forEach(sel => sel.addEventListener('change', function() { coInvestigators[this.dataset.idx].gcp = this.value; autoSaveForm(); }));
     }
 
     function downloadTemplate(type) {
@@ -840,16 +936,18 @@
 
     function updateStatsAndFilters() {
         const total = submissions.length;
-        const active = submissions.filter(s => !["approved","rejected"].includes(s.currentStage)).length;
+        const active = submissions.filter(s => !["approved","rejected","draft"].includes(s.currentStage)).length;
         const revisions = submissions.filter(s => s.currentStage.includes("revision")).length;
         const approved = submissions.filter(s => s.currentStage === "approved").length;
+        const drafts = submissions.filter(s => s.currentStage === "draft").length;
         document.getElementById("compactStats").innerHTML = `
             <div class="stat-pill"><i class="fa fa-folder-open"></i><div class="stat-info"><h4>Total</h4><div class="stat-number">${total}</div></div></div>
             <div class="stat-pill"><i class="fa fa-spinner"></i><div class="stat-info"><h4>Active</h4><div class="stat-number">${active}</div></div></div>
             <div class="stat-pill"><i class="fa fa-edit"></i><div class="stat-info"><h4>Revisions</h4><div class="stat-number">${revisions}</div></div></div>
             <div class="stat-pill"><i class="fa fa-check-circle"></i><div class="stat-info"><h4>Approved</h4><div class="stat-number">${approved}</div></div></div>
+            <div class="stat-pill"><i class="fa fa-pencil-square-o"></i><div class="stat-info"><h4>Drafts</h4><div class="stat-number">${drafts}</div></div></div>
         `;
-        const filterOptions = [{ key: "all", label: "All Submissions", icon: "fa-list" },{ key: "pending", label: "Pending", icon: "fa-clock-o" },{ key: "review", label: "Under Review", icon: "fa-search" },{ key: "revision", label: "Revisions Required", icon: "fa-edit" },{ key: "approved", label: "Approved", icon: "fa-check" },{ key: "rejected", label: "Rejected", icon: "fa-ban" }];
+        const filterOptions = [{ key: "all", label: "All Submissions", icon: "fa-list" },{ key: "draft", label: "Drafts", icon: "fa-pencil-square-o" },{ key: "pending", label: "Pending", icon: "fa-clock-o" },{ key: "review", label: "Under Review", icon: "fa-search" },{ key: "revision", label: "Revisions Required", icon: "fa-edit" },{ key: "approved", label: "Approved", icon: "fa-check" }];
         const container = document.getElementById("filterTabsContainer");
         container.innerHTML = filterOptions.map(opt => `<button class="filter-chip ${currentFilter === opt.key ? 'active' : ''}" data-filter="${opt.key}"><i class="fa ${opt.icon}"></i> ${opt.label}</button>`).join('');
         document.querySelectorAll('.filter-chip').forEach(btn => { btn.addEventListener('click', (e) => { currentFilter = btn.dataset.filter; updateStatsAndFilters(); renderSubmissions(); }); });
@@ -863,6 +961,7 @@
     }
 
     function getProgressWidth(stage) {
+        if (stage === "draft") return 0;
         const idx = getStageIndex(stage); if (idx === -1) return 0;
         const maxIdx = workflowOrder.length - 2; return Math.min(100, (idx / maxIdx) * 100);
     }
@@ -872,14 +971,71 @@
         const container = document.getElementById("submissionsContainer");
         if (filtered.length === 0) { container.innerHTML = `<div class="empty-state"><i class="fa fa-inbox fa-3x"></i><p>No submissions match filter</p><button class="btn-primary-sm" onclick="openNewSubmissionModal()"><i class="fa fa-plus"></i> Create new</button></div>`; return; }
         container.innerHTML = filtered.map(sub => { const statusClass = sub.currentStage.replace('-',''); const progress = getProgressWidth(sub.currentStage);
-            return `<div class="submission-card"><div class="card-header-row"><div><span class="submission-id">${sub.id}</span><div class="submission-title">${sub.title}</div></div><span class="status-badge status-${statusClass}"><i class="fa ${getStageIcon(sub.currentStage)}"></i> ${getStageName(sub.currentStage)}</span></div><div class="submission-meta"><span><i class="fa fa-calendar"></i> ${sub.submittedDate}</span><span><i class="fa fa-file-text"></i> ${sub.documents ? sub.documents.length : 0} doc(s)</span><span><i class="fa fa-commenting"></i> ${sub.comments ? sub.comments.length : 0} comment(s)</span></div><div class="timeline-progress"><div class="progress-fill" style="width: ${progress}%;"></div></div><div class="card-actions"><button class="btn-outline-sm" onclick="viewSubmission('${sub.id}')"><i class="fa fa-eye"></i> Details</button>${sub.currentStage.includes('revision') ? `<button class="btn-primary-sm" onclick="editSubmission('${sub.id}')"><i class="fa fa-upload"></i> Revise & Resubmit</button>` : ''}<button class="btn-outline-sm" onclick="viewTimeline('${sub.id}')"><i class="fa fa-history"></i> Timeline</button></div></div>`; }).join('');
+            return `<div class="submission-card"><div><span class="submission-id">${sub.id}</span><div class="submission-title">${sub.title}${sub.currentStage === 'draft' ? '<span class="draft-badge">Draft</span>' : ''}</div></div><div><span class="status-badge status-${statusClass}"><i class="fa ${getStageIcon(sub.currentStage)}"></i> ${getStageName(sub.currentStage)}</span></div><div class="submission-meta"><span><i class="fa fa-calendar"></i> ${sub.submittedDate}</span><span><i class="fa fa-file-text"></i> ${sub.documents ? sub.documents.length : 0} doc(s)</span></div><div class="timeline-progress"><div class="progress-fill" style="width: ${progress}%;"></div></div><div class="card-actions"><button class="btn-outline-sm" onclick="viewSubmission('${sub.id}')"><i class="fa fa-eye"></i> Details</button>${sub.currentStage === 'draft' ? `<button class="btn-primary-sm" onclick="editDraft('${sub.id}')"><i class="fa fa-edit"></i> Continue Editing</button>` : ''}${sub.currentStage.includes('revision') ? `<button class="btn-primary-sm" onclick="editSubmission('${sub.id}')"><i class="fa fa-upload"></i> Revise & Resubmit</button>` : ''}<button class="btn-outline-sm" onclick="viewTimeline('${sub.id}')"><i class="fa fa-history"></i> Timeline</button></div></div>`; }).join('');
     }
 
-    function viewSubmission(id) { const sub = submissions.find(s => s.id === id); if (!sub) return; document.getElementById("modalTitle").innerHTML = `${sub.id}: ${sub.title}`; document.getElementById("modalContent").innerHTML = `<div><strong>Description</strong><p style="background:#F4F7F9; padding:12px; border-radius:16px;">${sub.description}</p></div><div><strong>Documents</strong><ul>${sub.documents ? sub.documents.map(d => `<li><i class="fa fa-file-pdf-o"></i> ${d}</li>`).join('') : '<li>No documents</li>'}</ul></div>${sub.comments && sub.comments.length ? `<div class="comments-section"><strong>Reviewer Feedback</strong>${sub.comments.map(c => `<div><b>${c.author}</b> <span style="color:gray">${c.date}</span><p>${c.text}</p></div>`).join('')}</div>` : '<p>No comments yet</p>'}${sub.currentStage.includes('revision') ? `<div style="margin-top:1rem; background:#FFF2DF; padding:1rem; border-radius:20px;"><strong>Revision requested</strong><p>Please address comments and resubmit.</p><button class="btn-primary-sm" onclick="closeModal(); editSubmission('${sub.id}')">Revise now</button></div>` : ''}`; document.getElementById("submissionModal").style.display = "block"; }
-    function viewTimeline(id) { const sub = submissions.find(s => s.id === id); if (!sub || !sub.timeline) { showAlert("Timeline details will be fully integrated with SharePoint", "info"); return; } document.getElementById("modalTitle").innerHTML = `Timeline · ${sub.id}`; document.getElementById("modalContent").innerHTML = `<table style="width:100%; border-collapse: collapse;"><thead><tr><th>Date</th><th>Stage</th><th>Action</th><th>Actor</th></tr></thead><tbody>${sub.timeline.map(t => `<tr><td>${t.date}</td><td>${getStageName(t.stage)}</td><td>${t.action}</td><td>${t.actor}</td></tr>`).join('')}</tbody></table><div style="margin-top:1rem"><strong>Current:</strong> ${getStageName(sub.currentStage)}</div>`; document.getElementById("submissionModal").style.display = "block"; }
+    function editDraft(id) {
+        const draft = submissions.find(s => s.id === id);
+        if (draft && draft.draftData) {
+            // Load draft data into form
+            const data = draft.draftData;
+            if (document.getElementById('newTitle')) document.getElementById('newTitle').value = data.title || '';
+            if (document.getElementById('newDescription')) document.getElementById('newDescription').value = data.description || '';
+            if (document.getElementById('protocolVersion')) document.getElementById('protocolVersion').value = data.protocolVersion || '';
+            if (document.getElementById('studyType')) document.getElementById('studyType').value = data.studyType || 'Clinical Trial';
+            if (document.getElementById('piName')) document.getElementById('piName').value = data.piName || '';
+            if (document.getElementById('piQualifications')) document.getElementById('piQualifications').value = data.piQualifications || '';
+            if (document.getElementById('piEmail')) document.getElementById('piEmail').value = data.piEmail || '';
+            if (document.getElementById('piPhone')) document.getElementById('piPhone').value = data.piPhone || '';
+            if (document.getElementById('piInstitution')) document.getElementById('piInstitution').value = data.piInstitution || '';
+            if (document.getElementById('piNationality')) document.getElementById('piNationality').value = data.piNationality || '';
+            if (document.getElementById('piGcp')) document.getElementById('piGcp').value = data.piGcp || '';
+            if (data.coInvestigators) { coInvestigators = data.coInvestigators; renderCoInvestigators(); }
+            if (document.getElementById('teamExperience')) document.getElementById('teamExperience').value = data.teamExperience || '';
+            if (document.getElementById('internationalCollab')) document.getElementById('internationalCollab').value = data.internationalCollab || 'No';
+            if (document.getElementById('isStudent')) document.getElementById('isStudent').value = data.isStudent || 'No';
+            if (document.getElementById('studyDuration')) document.getElementById('studyDuration').value = data.studyDuration || '';
+            if (document.getElementById('funder')) document.getElementById('funder').value = data.funder || '';
+            if (document.getElementById('multiCountry')) document.getElementById('multiCountry').value = data.multiCountry || 'No';
+            if (document.getElementById('otherEthics')) document.getElementById('otherEthics').value = data.otherEthics || '';
+            if (document.getElementById('bioSamples')) document.getElementById('bioSamples').value = data.bioSamples || 'Select correct response';
+            if (document.getElementById('shipSamples')) document.getElementById('shipSamples').value = data.shipSamples || 'Select correct response';
+            if (document.getElementById('dataTransfer')) document.getElementById('dataTransfer').value = data.dataTransfer || 'Select correct response';
+            
+            // Remove the draft from submissions while editing
+            const index = submissions.findIndex(s => s.id === id);
+            if (index !== -1) submissions.splice(index, 1);
+            updateStatsAndFilters();
+            renderSubmissions();
+            openNewSubmissionModal();
+            showAlert('Loading draft for editing', 'info');
+        }
+    }
+
+    function viewSubmission(id) { const sub = submissions.find(s => s.id === id); if (!sub) return; document.getElementById("modalTitle").innerHTML = `${sub.id}: ${sub.title}`; document.getElementById("modalContent").innerHTML = `<div><strong>Description</strong><p style="background:#F4F7F9; padding:12px; border-radius:16px;">${sub.description}</p></div>${sub.comments && sub.comments.length ? `<div class="comments-section"><strong>Reviewer Feedback</strong>${sub.comments.map(c => `<div><b>${c.author}</b> <span style="color:gray">${c.date}</span><p>${c.text}</p></div>`).join('')}</div>` : '<p>No comments yet</p>'}`; document.getElementById("submissionModal").style.display = "block"; }
+    function viewTimeline(id) { const sub = submissions.find(s => s.id === id); if (!sub || !sub.timeline) { showAlert("Timeline details will be fully integrated with SharePoint", "info"); return; } document.getElementById("modalTitle").innerHTML = `Timeline · ${sub.id}`; document.getElementById("modalContent").innerHTML = `<table style="width:100%; border-collapse: collapse;"><thead><tr><th>Date</th><th>Stage</th><th>Action</th><th>Actor</th></tr></thead><tbody>${sub.timeline.map(t => `<tr><td>${t.date}</td><td>${getStageName(t.stage)}</td><td>${t.action}</td><td>${t.actor}</td></tr>`).join('')}</tbody></table>`; document.getElementById("submissionModal").style.display = "block"; }
     function editSubmission(id) { showAlert("Revision portal: upload revised documents & respond to reviewer comments (integrated with SharePoint)", "info"); }
-    function openNewSubmissionModal() { coInvestigators = []; renderCoInvestigators(); document.getElementById("newSubmissionModal").style.display = "block"; }
-    function closeNewSubmissionModal() { document.getElementById("newSubmissionModal").style.display = "none"; document.getElementById("newSubmissionForm").reset(); coInvestigators = []; renderCoInvestigators(); }
+    function openNewSubmissionModal() { 
+        coInvestigators = []; 
+        renderCoInvestigators(); 
+        document.getElementById("newSubmissionModal").style.display = "block";
+        // Set up auto-save on input changes
+        const formInputs = document.querySelectorAll('#newSubmissionForm input, #newSubmissionForm textarea, #newSubmissionForm select');
+        formInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                if (autoSaveTimer) clearTimeout(autoSaveTimer);
+                autoSaveTimer = setTimeout(autoSaveForm, 1000);
+            });
+        });
+        loadDraftData();
+    }
+    function closeNewSubmissionModal() { 
+        document.getElementById("newSubmissionModal").style.display = "none"; 
+        document.getElementById("newSubmissionForm").reset(); 
+        coInvestigators = []; 
+        renderCoInvestigators();
+        if (autoSaveTimer) clearTimeout(autoSaveTimer);
+    }
     function closeModal() { document.getElementById("submissionModal").style.display = "none"; }
     function newSubmission() { 
         const title = document.getElementById("newTitle").value.trim(); 
@@ -898,6 +1054,8 @@
             timeline: [{ stage: "pending", date: new Date().toISOString().split('T')[0], action: "Initial submission", actor: user.name }] 
         }; 
         submissions.unshift(newSub); 
+        // Clear draft after successful submission
+        localStorage.removeItem('last_ethics_draft_key');
         showAlert(`Submission ${newId} created!`, "success"); 
         closeNewSubmissionModal(); 
         updateStatsAndFilters(); 
@@ -912,7 +1070,7 @@
     window.viewSubmission = viewSubmission; window.viewTimeline = viewTimeline; window.editSubmission = editSubmission;
     window.openNewSubmissionModal = openNewSubmissionModal; window.closeNewSubmissionModal = closeNewSubmissionModal;
     window.closeModal = closeModal; window.logout = logout; window.addCoInvestigator = addCoInvestigator; window.removeCoInvestigator = removeCoInvestigator;
-    window.downloadTemplate = downloadTemplate;
+    window.downloadTemplate = downloadTemplate; window.saveAsDraft = saveAsDraft; window.editDraft = editDraft;
     updateStatsAndFilters(); renderSubmissions();
 </script>
 </body>
