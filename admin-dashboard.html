@@ -313,6 +313,14 @@
         .btn-warning-sm:hover {
             background: #FFE4B5;
         }
+        .btn-ai-sm {
+            background: #E8F0FE;
+            border-color: #3B82F6;
+            color: #1E40AF;
+        }
+        .btn-ai-sm:hover {
+            background: #DBEAFE;
+        }
         
         .metrics-section {
             background: white;
@@ -388,6 +396,24 @@
             border-radius: 16px;
             font-family: inherit;
             background: white;
+        }
+        .ai-summary-box {
+            background: #F0F9FF;
+            border-left: 4px solid #3B82F6;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .ai-badge {
+            background: #3B82F6;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 8px;
         }
         .alert {
             position: fixed;
@@ -527,6 +553,18 @@
     </div>
 </div>
 
+<!-- AI Summary Modal -->
+<div id="aiSummaryModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" style="float: right; font-size: 28px; cursor: pointer;" onclick="closeAISummaryModal()">&times;</span>
+        <h3 style="margin-bottom: 1.2rem;"><i class="fa fa-robot"></i> AI Summary Synthesis</h3>
+        <div id="aiSummaryContent"></div>
+        <div style="margin-top: 1.5rem; text-align: right;">
+            <button class="btn-outline-sm" onclick="closeAISummaryModal()">Close</button>
+        </div>
+    </div>
+</div>
+
 <!-- Assign Reviewer Modal -->
 <div id="assignModal" class="modal">
     <div class="modal-content">
@@ -634,19 +672,26 @@
     // Submissions with timestamps
     let submissions = [
         { id: 'ERC-2025-001', title: 'COVID-19 Vaccine Efficacy Study', submitter: 'Dr. Sarah Mbeki', department: 'Infectious Diseases', status: 'review', reviewers: ['Dr. John Mwangi', 'Dr. Amina Toure'], 
-          submissionDate: '2025-02-15', screeningStart: '2025-02-15', screeningEnd: '2025-02-18', reviewStart: '2025-02-18', returnReason: null },
+          submissionDate: '2025-02-15', screeningStart: '2025-02-15', screeningEnd: '2025-02-18', reviewStart: '2025-02-18', returnReason: null,
+          abstract: 'This study evaluates the efficacy of the COVID-19 vaccine in African populations, focusing on immunogenicity, safety profiles, and breakthrough infections across five countries.' },
         { id: 'ERC-2025-002', title: 'Malaria Prevention in Children', submitter: 'Dr. Sarah Mbeki', department: 'Public Health', status: 'review', reviewers: ['Dr. James Omondi'],
-          submissionDate: '2025-02-28', screeningStart: '2025-02-28', screeningEnd: '2025-03-02', reviewStart: '2025-03-02', returnReason: null },
+          submissionDate: '2025-02-28', screeningStart: '2025-02-28', screeningEnd: '2025-03-02', reviewStart: '2025-03-02', returnReason: null,
+          abstract: 'A randomized controlled trial assessing the impact of seasonal malaria chemoprevention and insecticide-treated nets on malaria incidence in children under five in sub-Saharan Africa.' },
         { id: 'ERC-2025-003', title: 'AI Ethics Framework', submitter: 'Dr. Amina Toure', department: 'Health Informatics', status: 'approved', reviewers: ['Prof. Sarah Mbeki', 'Prof. John Ndungu'],
-          submissionDate: '2025-01-10', screeningStart: '2025-01-10', screeningEnd: '2025-01-12', reviewStart: '2025-01-15', reviewEnd: '2025-02-25', approvalDate: '2025-03-01', returnReason: null },
+          submissionDate: '2025-01-10', screeningStart: '2025-01-10', screeningEnd: '2025-01-12', reviewStart: '2025-01-15', reviewEnd: '2025-02-25', approvalDate: '2025-03-01', returnReason: null,
+          abstract: 'This paper proposes an ethical framework for the deployment of artificial intelligence in public health surveillance, addressing bias, transparency, and data governance.' },
         { id: 'ERC-2025-004', title: 'Mobile Health for Maternal Care', submitter: 'Dr. Kwame Asare', department: 'Digital Health', status: 'revision', reviewers: ['Dr. Sarah Mbeki'],
-          submissionDate: '2025-01-20', screeningStart: '2025-01-20', screeningEnd: '2025-01-22', reviewStart: '2025-01-25', returnDate: '2025-02-28', returnReason: 'Missing ethical approval from local IRB', returnedDate: '2025-02-28' },
+          submissionDate: '2025-01-20', screeningStart: '2025-01-20', screeningEnd: '2025-01-22', reviewStart: '2025-01-25', returnDate: '2025-02-28', returnReason: 'Missing ethical approval from local IRB', returnedDate: '2025-02-28',
+          abstract: 'A mobile-based intervention to improve maternal health outcomes through SMS reminders and educational content for pregnant women in rural Ghana.' },
         { id: 'ERC-2025-005', title: 'Community Health Worker Training', submitter: 'Dr. Mercy Wanjiku', department: 'Community Health', status: 'screening', reviewers: [],
-          submissionDate: '2025-03-15', screeningStart: '2025-03-15', screeningEnd: null, returnReason: null },
+          submissionDate: '2025-03-15', screeningStart: '2025-03-15', screeningEnd: null, returnReason: null,
+          abstract: 'Evaluation of a digital training program for community health workers in Uganda, assessing knowledge retention and on-field performance improvements.' },
         { id: 'ERC-2025-006', title: 'Telemedicine Impact Study', submitter: 'Prof. James Otieno', department: 'Telehealth', status: 'screening', reviewers: [],
-          submissionDate: '2025-03-18', screeningStart: '2025-03-18', screeningEnd: null, returnReason: null },
+          submissionDate: '2025-03-18', screeningStart: '2025-03-18', screeningEnd: null, returnReason: null,
+          abstract: 'A retrospective cohort study measuring the effectiveness of telemedicine consultations in improving access to healthcare in remote Kenyan communities.' },
         { id: 'ERC-2025-007', title: 'Antimicrobial Resistance Surveillance', submitter: 'Dr. Faith Mwangi', department: 'Infectious Diseases', status: 'screening', reviewers: [],
-          submissionDate: '2025-03-20', screeningStart: '2025-03-20', screeningEnd: null, returnReason: null }
+          submissionDate: '2025-03-20', screeningStart: '2025-03-20', screeningEnd: null, returnReason: null,
+          abstract: 'Genomic surveillance of antimicrobial resistance patterns in ESBL-producing Enterobacteriaceae isolated from hospital settings in East Africa.' }
     ];
 
     let currentFilter = 'all';
@@ -753,6 +798,96 @@
         return { days, display: `${days} days (ongoing)`, status: 'time-pending' };
     }
 
+    // AI Summary Synthesis Function
+    function generateAISummary(submission) {
+        const title = submission.title;
+        const abstract = submission.abstract || 'No detailed abstract provided.';
+        const department = submission.department;
+        
+        // Simulated AI analysis based on keywords and context
+        let keyFindings = [];
+        let researchType = '';
+        let ethicalConsiderations = [];
+        let recommendedExpertise = [];
+        
+        const text = (title + ' ' + abstract).toLowerCase();
+        
+        if (text.includes('vaccine') || text.includes('immunogenicity') || text.includes('efficacy')) {
+            keyFindings.push('Clinical trial evaluating vaccine efficacy');
+            researchType = 'Clinical Trial / Interventional Study';
+            ethicalConsiderations.push('Informed consent from participants', 'Safety monitoring protocol');
+            recommendedExpertise.push('Infectious Diseases', 'Vaccinology', 'Clinical Ethics');
+        }
+        if (text.includes('malaria') || text.includes('chemoprevention') || text.includes('insecticide')) {
+            keyFindings.push('Preventive intervention assessment in pediatric population');
+            researchType = 'Randomized Controlled Trial';
+            ethicalConsiderations.push('Vulnerable population (children)', 'Community consent');
+            recommendedExpertise.push('Public Health', 'Pediatrics', 'Malaria Epidemiology');
+        }
+        if (text.includes('ai') || text.includes('artificial intelligence') || text.includes('ethics framework')) {
+            keyFindings.push('Governance framework for AI in public health');
+            researchType = 'Policy Analysis / Framework Development';
+            ethicalConsiderations.push('Algorithmic bias mitigation', 'Data privacy', 'Transparency requirements');
+            recommendedExpertise.push('AI Ethics', 'Health Informatics', 'Data Governance');
+        }
+        if (text.includes('mobile') || text.includes('telemedicine') || text.includes('digital')) {
+            keyFindings.push('Digital health intervention evaluation');
+            researchType = 'Implementation Science';
+            ethicalConsiderations.push('Digital equity', 'Data security', 'Informed consent for digital tools');
+            recommendedExpertise.push('Digital Health', 'Community Health', 'Health Informatics');
+        }
+        if (text.includes('community health') || text.includes('training')) {
+            keyFindings.push('Workforce capacity building assessment');
+            researchType = 'Educational Intervention Study';
+            ethicalConsiderations.push('Participant confidentiality', 'Professional development ethics');
+            recommendedExpertise.push('Community Health', 'Medical Education', 'Public Health');
+        }
+        if (text.includes('antimicrobial') || text.includes('resistance') || text.includes('surveillance')) {
+            keyFindings.push('Surveillance study of antimicrobial resistance patterns');
+            researchType = 'Observational / Surveillance Study';
+            ethicalConsiderations.push('Data sharing agreements', 'Laboratory quality assurance');
+            recommendedExpertise.push('Infectious Diseases', 'Microbiology', 'AMR Surveillance');
+        }
+        
+        // Default if no keywords matched
+        if (keyFindings.length === 0) {
+            keyFindings.push('Research submission requiring ethical review');
+            researchType = 'General Health Research';
+            ethicalConsiderations.push('Standard ethical review procedures apply');
+            recommendedExpertise.push('General Ethics', 'Research Methodology');
+        }
+        
+        return {
+            summary: `📋 **AI-Generated Summary**\n\n**Research Type:** ${researchType}\n\n**Key Focus Areas:** ${keyFindings.join(', ')}\n\n**Ethical Considerations:** ${ethicalConsiderations.join(', ')}\n\n**Recommended Reviewer Expertise:** ${recommendedExpertise.join(', ')}\n\n**Classification Confidence:** High - matches ${department} domain expertise.`,
+            recommendedExpertise: recommendedExpertise
+        };
+    }
+
+    // Open AI Summary Modal
+    function openAISummary(id) {
+        const submission = submissions.find(s => s.id === id);
+        if (!submission) return;
+        
+        const aiData = generateAISummary(submission);
+        const modalContent = document.getElementById('aiSummaryContent');
+        
+        modalContent.innerHTML = `
+            <div class="ai-summary-box">
+                <div class="ai-badge"><i class="fa fa-magic"></i> AI Synthesis</div>
+                <div style="white-space: pre-line; line-height: 1.6;">${aiData.summary}</div>
+            </div>
+            <div style="margin-top: 1rem; padding: 0.8rem; background: #F9FAFB; border-radius: 12px;">
+                <small><i class="fa fa-info-circle"></i> This AI-generated summary helps admins quickly classify submissions and identify appropriate reviewer expertise.</small>
+            </div>
+        `;
+        
+        document.getElementById('aiSummaryModal').style.display = 'block';
+    }
+    
+    function closeAISummaryModal() {
+        document.getElementById('aiSummaryModal').style.display = 'none';
+    }
+
     function updateStatsAndFilters() {
         const total = submissions.length;
         const screening = submissions.filter(s => s.status === 'screening').length;
@@ -819,6 +954,7 @@
                     <td><span class="time-badge ${totalTime.status}">${totalTime.display}</span></td>
                     <td>
                         ${sub.status === 'screening' ? `
+                            <button class="btn-ai-sm btn-sm" onclick="openAISummary('${sub.id}')"><i class="fa fa-robot"></i> AI Summary</button>
                             <button class="btn-primary-sm btn-sm" onclick="openAssignModal('${sub.id}')"><i class="fa fa-user-plus"></i> Assign</button>
                             <button class="btn-warning-sm btn-sm" onclick="openReturnModal('${sub.id}')" style="margin-left: 0.5rem;"><i class="fa fa-undo"></i> Return</button>
                         ` : ''}
@@ -914,6 +1050,8 @@
     updateStatsAndFilters();
     renderSubmissions();
 
+    window.openAISummary = openAISummary;
+    window.closeAISummaryModal = closeAISummaryModal;
     window.openAssignModal = openAssignModal;
     window.closeAssignModal = closeAssignModal;
     window.assignReviewers = assignReviewers;
@@ -925,7 +1063,7 @@
     window.filterByStatus = filterByStatus;
     window.scrollToPendingAssignments = scrollToPendingAssignments;
     window.onclick = (e) => {
-        if (e.target.classList.contains('modal')) { closeAssignModal(); closeReturnModal(); }
+        if (e.target.classList.contains('modal')) { closeAISummaryModal(); closeAssignModal(); closeReturnModal(); }
     };
 </script>
 </body>
