@@ -308,6 +308,20 @@
             background: #F1F5F9;
             border-color: var(--primary);
         }
+        /* AI summary button style */
+        .btn-ai-sm {
+            background: linear-gradient(135deg, #F0F7F4, #E9F0EE);
+            border: 1px solid var(--primary);
+            color: var(--primary-deep);
+            font-weight: 600;
+        }
+        .btn-ai-sm i {
+            color: var(--gold);
+        }
+        .btn-ai-sm:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-deep);
+        }
 
         /* Modal */
         .modal {
@@ -369,6 +383,20 @@
             background: white;
             border-radius: 28px;
             color: var(--text-muted);
+        }
+        .ai-summary-box {
+            background: var(--primary-light);
+            border-left: 4px solid var(--gold);
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.5rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+        .ai-summary-box strong {
+            color: var(--primary-deep);
+            display: block;
+            margin-bottom: 0.4rem;
         }
 
         /* Footer */
@@ -506,6 +534,21 @@
     </div>
 </div>
 
+<!-- AI Summary Modal (for quick synthesis) -->
+<div id="aiSummaryModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" style="float: right; font-size: 28px; cursor: pointer;" onclick="closeAiSummaryModal()">&times;</span>
+        <h2><i class="fa fa-magic" style="color: var(--gold);"></i> AI Synthesis: Submission Summary</h2>
+        <div id="aiSummaryContent" class="ai-summary-box">
+            <strong><i class="fa fa-spinner fa-spin"></i> Generating intelligent summary...</strong>
+            <p>Analyzing protocol details, ethical dimensions, and risk profile.</p>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 0.5rem;">
+            <button class="btn-outline-sm" onclick="closeAiSummaryModal()">Close</button>
+        </div>
+    </div>
+</div>
+
 <div id="alertMessage" class="alert"></div>
 
 <!-- Footer with Africa CDC details -->
@@ -578,6 +621,36 @@
         return 'COMPLETED';
     }
 
+    // AI summary synthesis logic (intelligent mock summarization)
+    function generateAISummary(review) {
+        const riskLevel = review.priority === 'high' ? 'High risk - rigorous ethical oversight required' : (review.priority === 'medium' ? 'Moderate risk - standard safeguards needed' : 'Low risk - routine review');
+        const statusNote = review.myReviewStatus === 'completed' ? 'This submission has been previously reviewed.' : 'Awaiting reviewer feedback.';
+        let ethicsSpotlight = '';
+        if (review.id === 'ERC-2025-001') ethicsSpotlight = 'Key ethical considerations: informed consent across vulnerable populations, data sharing with regional partners.';
+        else if (review.id === 'ERC-2025-002') ethicsSpotlight = 'Community engagement protocols, parental consent, and minimal risk for children.';
+        else if (review.id === 'ERC-2025-006') ethicsSpotlight = 'Data privacy in telemedicine, equitable access concerns, and remote participant protections.';
+        else if (review.id === 'ERC-2025-007') ethicsSpotlight = 'Surveillance data governance, antimicrobial stewardship, and hospital ethics approvals needed.';
+        else ethicsSpotlight = 'Traditional medicine integration requires respect for cultural practices while ensuring safety monitoring.';
+        
+        return `
+            <strong><i class="fa fa-file-text-o"></i> Protocol: ${review.title} (${review.id})</strong><br/>
+            <strong>🔍 Risk assessment:</strong> ${riskLevel}<br/>
+            <strong>📌 Core methodology:</strong> ${review.description.substring(0, 180)}...<br/>
+            <strong>⚖️ Ethics spotlight:</strong> ${ethicsSpotlight}<br/>
+            <strong>📎 Key documents:</strong> ${review.documents.join(', ')}<br/>
+            <strong>⏳ Timeline:</strong> Submitted: ${review.submittedDate} | Due: ${review.dueDate}<br/>
+            <strong>🤖 AI synthesis note:</strong> This submission aligns with Africa CDC ethical guidelines. ${statusNote} Reviewers should assess community engagement and data protection clauses in depth.
+        `;
+    }
+
+    function showAiSummary(reviewId) {
+        const review = reviews.find(r => r.id === reviewId);
+        if (!review) return;
+        const summaryHtml = generateAISummary(review);
+        document.getElementById('aiSummaryContent').innerHTML = `<strong><i class="fa fa-robot"></i> AI-Generated Summary (Pre-review Synthesis)</strong><br/><br/>${summaryHtml}`;
+        document.getElementById('aiSummaryModal').style.display = 'block';
+    }
+
     function updateStatsAndFilters() {
         const pending = reviews.filter(r => r.myReviewStatus === 'pending').length;
         const inProgress = reviews.filter(r => r.myReviewStatus === 'in-progress').length;
@@ -644,6 +717,7 @@
                 </div>
                 <div class="card-actions">
                     <button class="btn-outline-sm" onclick="viewSubmission('${review.id}')"><i class="fa fa-eye"></i> View Full Protocol</button>
+                    <button class="btn-outline-sm btn-ai-sm" onclick="showAiSummary('${review.id}')"><i class="fa fa-magic"></i> AI Summary Synthesis</button>
                     ${review.myReviewStatus !== 'completed' ? `<button class="btn-primary-sm" onclick="openReviewModal('${review.id}')"><i class="fa fa-comment"></i> Submit Review</button>` : `<button class="btn-outline-sm" disabled style="opacity:0.6;"><i class="fa fa-check"></i> Review Completed</button>`}
                 </div>
             </div>
@@ -668,6 +742,10 @@
         document.getElementById('reviewModal').style.display = 'none';
         document.getElementById('reviewForm').reset();
         currentReviewId = null;
+    }
+
+    function closeAiSummaryModal() {
+        document.getElementById('aiSummaryModal').style.display = 'none';
     }
 
     function submitReview() {
@@ -727,11 +805,15 @@
     });
     window.onclick = (e) => {
         const modal = document.getElementById('reviewModal');
+        const aiModal = document.getElementById('aiSummaryModal');
         if (e.target === modal) closeReviewModal();
+        if (e.target === aiModal) closeAiSummaryModal();
     };
     window.viewSubmission = viewSubmission;
     window.openReviewModal = openReviewModal;
     window.closeReviewModal = closeReviewModal;
+    window.showAiSummary = showAiSummary;
+    window.closeAiSummaryModal = closeAiSummaryModal;
     window.logout = logout;
     window.scrollToPendingReviews = scrollToPendingReviews;
 </script>
