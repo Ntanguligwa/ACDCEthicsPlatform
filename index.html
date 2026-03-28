@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Africa CDC | Ethical Review System</title>
+    <link rel="icon" href="AfricaCDClogo.png" type="image/png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <style>
+        :root {
+            /* Africa CDC Brand Colors */
+            --primary: #1B4D3E;
+            --primary-dark: #0E352A;
+            --primary-light: #3C7A66;
+            --secondary: #D4AF37;
+            --secondary-light: #F0D675;
+            --accent: #E63946;
+            --light: #F5F7F6;
+            --dark: #1E2A2A;
+            --gray: #5C6E6E;
+            --gray-light: #E8EDEC;
+            --success: #2E7D64;
+            --warning: #D4AF37;
+            --danger: #E63946;
+            --white: #FFFFFF;
+            
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --border-radius: 16px;
+            --border-radius-sm: 10px;
+            --border-radius-logo: 10%;
+            --transition: all 0.3s ease;
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* Splash Screen */
+        .splash-container {
+            text-align: center;
+            color: white;
+            max-width: 600px;
+            padding: 40px;
+            display: none;
+        }
+        
+        body.show-splash .splash-container { display: block; animation: fadeIn 0.5s ease; }
+        body.show-splash .login-container, body.show-splash #logo-img, 
+        body.show-splash .welcome, body.show-splash .card { display: none; }
+        
+        .splash-logo {
+            width: 160px;
+            height: auto;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+            box-shadow: var(--shadow);
+            background: white;
+            padding: 10px;
+            border-radius: var(--border-radius-logo);
+        }
+        
+        .splash-title { font-size: 2rem; margin-bottom: 15px; font-weight: 700; letter-spacing: -0.5px; }
+        .splash-subtitle { font-size: 1.1rem; margin-bottom: 40px; opacity: 0.9; font-weight: 500; }
+        
+        .splash-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary);
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        /* Login Screen */
+        body.show-login .splash-container { display: none; }
+        body.show-login #logo-img, body.show-login .welcome, body.show-login .card { display: block; }
+        
+        #logo-img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            display: none;
+            background: white;
+            padding: 8px;
+            border-radius: var(--border-radius-logo);
+        }
+        
+        #logo-img:hover { transform: scale(1.05); box-shadow: var(--shadow-hover); }
+        
+        .welcome {
+            color: var(--white);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.5px;
+            display: none;
+            text-align: center;
+        }
+        
+        .welcome span { font-size: 1rem; font-weight: 500; display: block; margin-top: 8px; opacity: 0.9; }
+        
+        .card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            display: none;
+        }
+        
+        body.show-login .card { animation: fadeIn 0.5s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        /* Form Elements */
+        fieldset { border: none; padding: 0; margin: 0; }
+        legend { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; text-align: center; }
+        .form-subtitle { text-align: center; color: var(--gray); font-size: 0.9rem; margin-bottom: 30px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--gray); font-weight: 500; font-size: 0.9rem; }
+        .form-group label i { color: var(--primary); margin-right: 8px; width: 20px; }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius-sm);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(27, 77, 62, 0.1);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        
+        .checkbox-group label { color: var(--gray); font-size: 0.9rem; cursor: pointer; margin-bottom: 0; }
+        
+        .forgot-password { text-align: right; margin-bottom: 25px; }
+        .forgot-password a { color: var(--primary); font-size: 0.85rem; text-decoration: none; transition: var(--transition); display: inline-flex; align-items: center; gap: 5px; }
+        .forgot-password a:hover { color: var(--primary-dark); text-decoration: underline; }
+        
+        .button {
+            width: 100%;
+            padding: 14px 20px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .button:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(27, 77, 62, 0.3); }
+        .button:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        
+        /* Alert */
+        .alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 300px;
+            max-width: 450px;
+            z-index: 10000;
+            padding: 12px 16px;
+            border-radius: var(--border-radius-sm);
+            display: none;
+            box-shadow: var(--shadow);
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } }
+        .alert.show { display: block; }
+        .alert-success { background: #d4edda; color: #155724; border-left: 4px solid var(--success); }
+        .alert-error { background: #f8d7da; color: #721c24; border-left: 4px solid var(--danger); }
+        .alert-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid var(--secondary); }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: var(--white);
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .close-modal:hover { color: var(--danger); transform: rotate(90deg); }
+        .modal-content h2 { color: var(--primary); margin-bottom: 20px; text-align: center; font-size: 1.5rem; }
+        
+        /* Footer */
+        .footer { margin-top: 30px; text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; }
+        .footer a { color: var(--secondary); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        
+        /* Help Button */
+        .help-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--secondary);
+            color: var(--primary-dark);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            z-index: 999;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        .help-button:hover { transform: scale(1.1); background: var(--secondary-light); }
+        
+        .help-text {
+            position: absolute;
+            right: 70px;
+            background: var(--white);
+            color: var(--dark);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .help-button:hover .help-text { opacity: 1; visibility: visible; right: 80px; }
+        
+        /* Demo Credentials Card */
+        .demo-credentials {
+            margin-top: 20px;
+            padding: 15px;
+            background: #F8F9FA;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--gray-light);
+        }
+        
+        .demo-credentials p {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .credential-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .cred-btn {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .cred-btn:hover { background: var(--primary); transform: translateY(-1px); }
+        
+        @media (max-width: 480px) {
+            .card { padding: 30px 20px; }
+            .welcome { font-size: 1.5rem; }
+            #logo-img { width: 80px; }
+            .help-button { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 1rem; }
+            .help-button:hover .help-text { display: none; }
+            .splash-title { font-size: 1.5rem; }
+            .splash-logo { width: 120px; }
+        }
+    </style>
+</head>
+<body class="show-splash">
+    <!-- Splash Screen -->
+    <div class="splash-container">
+        <img src="AfricaCDClogo.png" alt="Africa CDC" class="splash-logo">
+        <h1 class="splash-title">Africa CDC</h1>
+        <p class="splash-subtitle">Ethical Review Management System</p>
+        <div class="splash-spinner"></div>
+        <p style="margin-top: 40px; font-size: 0.9rem;">Securing African public health through ethical excellence</p>
+    </div>
+    
+    <!-- Logo (for login screen) -->
+    <img src="AfricaCDClogo.png" alt="Africa CDC" id="logo-img">
+    
+    <!-- Welcome Text -->
+    <h1 class="welcome">
+        Ethical Review Portal
+        <span>Africa Centres for Disease Control and Prevention</span>
+    </h1>
+    
+    <!-- Login Card -->
+    <main class="card">
+        <form id="loginForm" class="login-form" novalidate>
+            <fieldset>
+                <legend>Secure Access</legend>
+                <p class="form-subtitle">Sign in to access the Ethical Review System</p>
+                
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fa fa-envelope"></i>
+                        Email Address
+                    </label>
+                    <input type="email" id="email" placeholder="researcher@africacdc.org" autocomplete="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fa fa-lock"></i>
+                        Password
+                    </label>
+                    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Remember me on this device</label>
+                </div>
+                
+                <div class="forgot-password">
+                    <a href="#" onclick="openResetModal()">
+                        <i class="fa fa-question-circle"></i>
+                        Forgot Password?
+                    </a>
+                </div>
+                
+                <button type="submit" class="button" id="loginBtn">
+                    <i class="fa fa-sign-in"></i>
+                    Access Portal
+                </button>
+            </fieldset>
+        </form>
+        
+        <!-- Demo Credentials for Testing -->
+        <div class="demo-credentials">
+            <p><i class="fa fa-flask"></i> <strong>Demo Credentials (for testing)</strong></p>
+            <div class="credential-buttons">
+                <button type="button" class="cred-btn" onclick="fillCredentials('researcher@africacdc.org', 'password123')">
+                    <i class="fa fa-user-md"></i> Researcher
+                </button>
+                <button type="button" class="cred-btn" onclick="fillCredentials('reviewer@africacdc.org', 'password123')">
+                    <i class="fa fa-gavel"></i> Reviewer
+                </button>
+                <button type="button" class="cred-btn" onclick="fillCredentials('admin@africacdc.org', 'password123')">
+                    <i class="fa fa-user-shield"></i> Admin
+                </button>
+            </div>
+            <p style="margin-top: 8px; font-size: 0.7rem;">Use any email/password - demo mode active</p>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2025 Africa CDC | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a></p>
+        <p style="margin-top: 5px;">Safeguarding ethical research across the African continent</p>
+    </div>
+    
+    <!-- Password Reset Modal -->
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeResetModal()">&times;</span>
+            <h2>Reset Password</h2>
+            <form id="resetForm">
+                <div class="form-group">
+                    <label>Registered Email Address</label>
+                    <input type="email" id="resetEmail" placeholder="researcher@africacdc.org" required>
+                </div>
+                <button type="submit" class="button">
+                    <i class="fa fa-envelope"></i>
+                    Send Reset Link
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Alert Container -->
+    <div id="alertContainer" class="alert"></div>
+    
+    <!-- Help Button -->
+    <div class="help-button" onclick="openHelpModal();">
+        <i class="fa fa-life-ring"></i>
+        <span class="help-text">Need help?</span>
+    </div>
+    
+    <script>
+        // Demo Mode Authentication with Role-Based Redirects
+        
+        const alertContainer = document.getElementById('alertContainer');
+        const loginForm = document.getElementById('loginForm');
+        const resetModal = document.getElementById('resetModal');
+        const resetForm = document.getElementById('resetForm');
+        const body = document.body;
+        
+        function showAlert(message, type = 'info') {
+            alertContainer.className = `alert alert-${type} show`;
+            alertContainer.innerHTML = `
+                <span class="close-alert" onclick="this.parentElement.classList.remove('show')">&times;</span>
+                ${message}
+            `;
+            setTimeout(() => alertContainer.classList.remove('show'), 5000);
+        }
+        
+        function closeResetModal() {
+            resetModal.style.display = 'none';
+            if (resetForm) resetForm.reset();
+        }
+        
+        function openResetModal() {
+            resetModal.style.display = 'block';
+        }
+        
+        function openHelpModal() {
+            showAlert('For assistance, please contact the Ethics Secretariat at ethics@africacdc.org or call +251 11 123 4567', 'info');
+        }
+        
+        function fillCredentials(email, password) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = password;
+            showAlert(`Demo credentials filled: ${email}`, 'success');
+        }
+        
+        // Function to redirect based on role
+        function redirectToDashboard(role) {
+            switch(role) {
+                case 'admin':
+                    return 'admin-dashboard.html';
+                case 'reviewer':
+                    return 'reviewer-dashboard.html';
+                case 'researcher':
+                    return 'researcher-dashboard.html';
+                default:
+                    return 'researcher-dashboard.html';
+            }
+        }
+        
+        // Working login handler with role-based redirects
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const loginBtn = document.getElementById('loginBtn');
+                const rememberMe = document.getElementById('rememberMe').checked;
+                
+                if (!email || !password) {
+                    showAlert('Please enter both email and password', 'error');
+                    return;
+                }
+                
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Authenticating...';
+                
+                // Simulate network request
+                setTimeout(() => {
+                    // Determine role based on email for demo
+                    let role = 'researcher';
+                    let displayName = email.split('@')[0].replace(/\./g, ' ');
+                    
+                    if (email.includes('reviewer')) {
+                        role = 'reviewer';
+                        displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+                    } else if (email.includes('admin')) {
+                        role = 'admin';
+                        displayName = 'Administrator';
+                    } else if (email.includes('researcher')) {
+                        role = 'researcher';
+                        displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+                    }
+                    
+                    // Store session data
+                    const sessionData = {
+                        email: email,
+                        name: displayName,
+                        role: role,
+                        loginTime: new Date().toISOString()
+                    };
+                    
+                    sessionStorage.setItem('currentUser', JSON.stringify(sessionData));
+                    
+                    if (rememberMe) {
+                        localStorage.setItem('rememberedUser', email);
+                        localStorage.setItem('rememberedRole', role);
+                    } else {
+                        localStorage.removeItem('rememberedUser');
+                        localStorage.removeItem('rememberedRole');
+                    }
+                    
+                    const roleDisplay = {
+                        'researcher': 'Researcher',
+                        'reviewer': 'Reviewer',
+                        'admin': 'Administrator'
+                    };
+                    
+                    showAlert(`Welcome ${sessionData.name}! Redirecting to ${roleDisplay[role]} Dashboard...`, 'success');
+                    
+                    // Redirect to the appropriate dashboard
+                    setTimeout(() => {
+                        const dashboardUrl = redirectToDashboard(role);
+                        window.location.href = dashboardUrl;
+                    }, 1500);
+                    
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fa fa-sign-in"></i> Access Portal';
+                }, 1000);
+            });
+        }
+        
+        // Password reset handler (demo)
+        if (resetForm) {
+            resetForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('resetEmail').value;
+                const submitBtn = resetForm.querySelector('button[type="submit"]');
+                
+                if (!email) {
+                    showAlert('Please enter your email address', 'error');
+                    return;
+                }
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
+                
+                setTimeout(() => {
+                    showAlert(`Password reset link sent to ${email} (demo mode)`, 'success');
+                    closeResetModal();
+                    resetForm.reset();
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa fa-envelope"></i> Send Reset Link';
+                }, 1000);
+            });
+        }
+        
+        // Check for remembered user and auto-redirect if already logged in
+        window.addEventListener('DOMContentLoaded', () => {
+            const rememberedUser = localStorage.getItem('rememberedUser');
+            const rememberedRole = localStorage.getItem('rememberedRole');
+            
+            if (rememberedUser && rememberedRole) {
+                const emailField = document.getElementById('email');
+                if (emailField) {
+                    emailField.value = rememberedUser;
+                    document.getElementById('rememberMe').checked = true;
+                }
+                
+                // Auto-login with remembered credentials
+                const sessionData = {
+                    email: rememberedUser,
+                    name: rememberedRole === 'admin' ? 'Administrator' : rememberedUser.split('@')[0].replace(/\./g, ' '),
+                    role: rememberedRole,
+                    loginTime: new Date().toISOString()
+                };
+                sessionStorage.setItem('currentUser', JSON.stringify(sessionData));
+                
+                // Redirect immediately
+                const dashboardUrl = redirectToDashboard(rememberedRole);
+                window.location.href = dashboardUrl;
+                return;
+            }
+            
+            // Show login after splash
+            setTimeout(() => {
+                body.classList.remove('show-splash');
+                body.classList.add('show-login');
+            }, 1500);
+        });
+        
+        // Modal click outside
+        window.onclick = (e) => {
+            if (e.target === resetModal) closeResetModal();
+        };
+        
+        // Make functions global
+        window.openResetModal = openResetModal;
+        window.closeResetModal = closeResetModal;
+        window.openHelpModal = openHelpModal;
+        window.fillCredentials = fillCredentials;
+        
+        console.log('🔐 Africa CDC Ethical Review System - Demo Mode Active');
+        console.log('📝 Role-based redirects configured:');
+        console.log('   - researcher@africacdc.org → Researcher Dashboard');
+        console.log('   - reviewer@africacdc.org → Reviewer Dashboard');
+        console.log('   - admin@africacdc.org → Admin Dashboard');
+    </script>
+</body>
+</html>

@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Africa CDC | Reviewer Dashboard</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F4F7F9;
+            color: #1A2C2E;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        :root {
+            --primary-deep: #0F3B2C;
+            --primary: #1E6F5C;
+            --primary-light: #EFFAF7;
+            --gold: #D4AF37;
+            --gold-light: #FBF5E0;
+            --gray-bg: #F8FAFC;
+            --gray-border: #E2E8F0;
+            --text-dark: #1A2C2E;
+            --text-muted: #4A5B5E;
+            --success: #2E7D64;
+            --warning: #E6B422;
+            --danger: #DC4C4C;
+            --info: #2C7DA0;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--primary-deep);
+            color: white;
+            padding: 0.9rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo img {
+            width: 48px;
+            height: 48px;
+            background: white;
+            padding: 6px;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+        .logo h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        .user-badge {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(4px);
+            padding: 0.45rem 1rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .logout-btn {
+            background: var(--gold);
+            color: var(--primary-deep);
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logout-btn:hover {
+            background: #e6c35c;
+            transform: translateY(-1px);
+        }
+
+        /* Dashboard container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.8rem;
+            flex: 1;
+        }
+
+        /* Quick action hero - core initiator for reviewers */
+        .quick-action-hero {
+            background: linear-gradient(135deg, #0F3B2C 0%, #1E6F5C 100%);
+            border-radius: 28px;
+            padding: 1.6rem 2rem;
+            margin-bottom: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            box-shadow: 0 12px 24px -12px rgba(0,0,0,0.2);
+        }
+        .hero-text h2 {
+            color: white;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+        .hero-text p {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.9rem;
+        }
+        .hero-btn {
+            background: var(--gold);
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #0F3B2C;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .hero-btn i {
+            font-size: 1.2rem;
+        }
+        .hero-btn:hover {
+            background: #FFE082;
+            transform: scale(1.02);
+        }
+
+        /* Stats row - reviewer performance metrics */
+        .stats-mini-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: space-between;
+        }
+        .stat-pill {
+            background: white;
+            border-radius: 40px;
+            padding: 0.6rem 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--gray-border);
+            flex: 1;
+            min-width: 140px;
+        }
+        .stat-pill i {
+            font-size: 1.6rem;
+            color: var(--primary);
+        }
+        .stat-pill .stat-info h4 {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+        .stat-pill .stat-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-deep);
+        }
+
+        /* Filter tabs - consolidated filtering */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--gray-border);
+            padding-bottom: 0.75rem;
+        }
+        .filter-chip {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-weight: 500;
+            font-size: 0.85rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(30,111,92,0.2);
+        }
+        .filter-chip:hover:not(.active) {
+            background: #E9F0EE;
+            color: var(--primary-deep);
+        }
+
+        /* Review cards */
+        .reviews-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .review-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.4rem 1.6rem;
+            transition: all 0.2s ease;
+            border: 1px solid var(--gray-border);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            border-left: 5px solid;
+        }
+        .review-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -12px rgba(0,0,0,0.12);
+        }
+        .priority-high { border-left-color: var(--danger); }
+        .priority-medium { border-left-color: var(--warning); }
+        .priority-low { border-left-color: var(--success); }
+
+        .status-badge {
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-pending { background: #FFF2DF; color: #B86F0C; }
+        .status-in-progress { background: #E2F0FD; color: #1F6392; }
+        .status-completed { background: #E0F2E9; color: #1E6F5C; }
+
+        .review-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 0.5rem 0;
+        }
+        .card-actions {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--gray-border);
+        }
+        .btn-sm {
+            background: transparent;
+            border: 1px solid var(--gray-border);
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary-sm {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        .btn-primary-sm:hover {
+            background: var(--primary-deep);
+        }
+        .btn-outline-sm {
+            background: white;
+            border: 1px solid var(--gray-border);
+        }
+        .btn-outline-sm:hover {
+            background: #F1F5F9;
+            border-color: var(--primary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+        .modal-content {
+            background: white;
+            margin: 2rem auto;
+            padding: 1.8rem;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 700px;
+            animation: fadeUp 0.25s ease;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .form-group {
+            margin-bottom: 1.4rem;
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+        textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1.5px solid var(--gray-border);
+            border-radius: 16px;
+            font-family: inherit;
+        }
+        .alert {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--primary-deep);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            display: none;
+            z-index: 1100;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 28px;
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        .footer {
+            background: #0A2A20;
+            color: #E0E7E5;
+            margin-top: 3rem;
+            padding: 2.5rem 2rem 1.8rem;
+            border-top: 4px solid var(--gold);
+        }
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+        }
+        .footer-section h4 {
+            color: var(--gold);
+            font-size: 1rem;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            border-left: 3px solid var(--gold);
+            padding-left: 0.75rem;
+        }
+        .footer-section p, .footer-section a {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #C0D6D0;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s;
+        }
+        .footer-section a:hover {
+            color: var(--gold);
+            text-decoration: underline;
+        }
+        .footer-section i {
+            width: 24px;
+            color: var(--gold);
+            margin-right: 8px;
+        }
+        .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(212, 175, 55, 0.12);
+            padding: 0.4rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            font-size: 0.75rem;
+            color: #8FADA3;
+        }
+        @media (max-width: 720px) {
+            .dashboard-container { padding: 1.2rem; }
+            .quick-action-hero { flex-direction: column; text-align: center; }
+            .footer-container { grid-template-columns: 1fr; gap: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">
+        <img src="AfricaCDClogo.png" alt="Africa CDC Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23D4AF37\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'48\' text-anchor=\'middle\' fill=\'%231B4D3E\' font-weight=\'bold\'%3E♂%3C/text%3E%3C/svg%3E';">
+        <h1>Africa CDC Ethics Review</h1>
+    </div>
+    <div class="user-info">
+        <div class="user-badge"><i class="fa fa-gavel"></i> REVIEWER</div>
+        <span id="userName"><i class="fa fa-user-circle"></i> Loading...</span>
+        <button class="logout-btn" onclick="logout()"><i class="fa fa-sign-out"></i> Exit</button>
+    </div>
+</nav>
+
+<div class="dashboard-container">
+    <!-- QUICK ACTION HERO - core initiator: Submit Review (most important reviewer action) -->
+    <div class="quick-action-hero">
+        <div class="hero-text">
+            <h2><i class="fa fa-check-square-o"></i> Pending reviews</h2>
+            <p>Review assigned protocols, provide feedback, and ensure ethical standards</p>
+        </div>
+        <button class="hero-btn" onclick="scrollToPendingReviews()">
+            <i class="fa fa-arrow-down"></i> Start Reviewing
+        </button>
+    </div>
+
+    <!-- Compact stats row - reviewer performance metrics -->
+    <div class="stats-mini-row" id="compactStats"></div>
+
+    <!-- Unified filter tabs (replaces any redundant filters) -->
+    <div class="filter-tabs" id="filterTabsContainer"></div>
+
+    <!-- Reviews list -->
+    <div id="reviewsContainer" class="reviews-grid"></div>
+</div>
+
+<!-- Review Modal -->
+<div id="reviewModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" style="float: right; font-size: 28px; cursor: pointer;" onclick="closeReviewModal()">&times;</span>
+        <h2 id="reviewTitle"><i class="fa fa-commenting"></i> Submit Review</h2>
+        <form id="reviewForm">
+            <div class="form-group">
+                <label>Your Review Comments *</label>
+                <textarea id="reviewComments" rows="6" required placeholder="Provide detailed feedback on methodology, ethical considerations, data privacy, strengths, and concerns..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Recommendation *</label>
+                <select id="recommendation" required>
+                    <option value="">Select recommendation...</option>
+                    <option value="approve">Approve - No changes needed</option>
+                    <option value="minor">Minor Revision - Small changes required</option>
+                    <option value="major">Major Revision - Significant changes required</option>
+                    <option value="reject">Reject - Not approved</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn-primary-sm" style="padding: 0.7rem 1.5rem;"><i class="fa fa-paper-plane"></i> Submit Review</button>
+                <button type="button" class="btn-outline-sm" onclick="closeReviewModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="alertMessage" class="alert"></div>
+
+<!-- Footer with Africa CDC details -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h4><i class="fa fa-map-marker"></i> Africa CDC Headquarters</h4>
+            <p><i class="fa fa-location-arrow"></i> 16/17, Addis Ababa, Ethiopia</p>
+            <p><i class="fa fa-phone"></i> +251 11 551 7700</p>
+            <p><i class="fa fa-envelope"></i> support@africacdc.org</p>
+        </div>
+        <div class="footer-section">
+            <h4><i class="fa fa-compass"></i> Navigate</h4>
+            <a href="https://khub.africacdc.org/" target="_blank" rel="noopener"><i class="fa fa-graduation-cap"></i> KnowledgeHub Portal</a>
+            <a href="https://africacdc.org/" target="_blank" rel="noopener"><i class="fa fa-globe"></i> Africa CDC Website</a>
+            <a href="#" onclick="showAlert('Privacy Policy document (PDF) will be available soon', 'info'); return false;"><i class="fa fa-lock"></i> Privacy Policy</a>
+        </div>
+        <div class="footer-section">
+            <h4><i class="fa fa-book"></i> Resources</h4>
+            <a href="#" onclick="showAlert('Reviewer Guide – Best practices for ethical review', 'info'); return false;"><i class="fa fa-users"></i> Reviewer Handbook</a>
+            <a href="#" onclick="showAlert('Standard Operating Procedures for Reviewers', 'info'); return false;"><i class="fa fa-file-text"></i> Review SOPs</a>
+            <a href="#" onclick="showAlert('Ethics Guidelines for Reviewers', 'info'); return false;"><i class="fa fa-balance-scale"></i> Ethics Guidelines</a>
+            <a href="#" onclick="showAlert('Reviewer Checklist & Evaluation Criteria', 'info'); return false;"><i class="fa fa-check-square-o"></i> Reviewer Checklist</a>
+        </div>
+        <div class="footer-section">
+            <h4><i class="fa fa-share-alt"></i> Follow us</h4>
+            <div class="social-links">
+                <a href="https://twitter.com/AfricaCDC" target="_blank" rel="noopener"><i class="fa fa-twitter"></i> X (Twitter)</a>
+                <a href="https://www.linkedin.com/company/africacdc/" target="_blank" rel="noopener"><i class="fa fa-linkedin"></i> LinkedIn</a>
+                <a href="https://web.facebook.com/africacdc/" target="_blank" rel="noopener"><i class="fa fa-facebook"></i> Facebook</a>
+                <a href="https://www.youtube.com/channel/UCWRIrWg4as6umiFK_k80pIg" target="_blank" rel="noopener"><i class="fa fa-youtube-play"></i> YouTube</a>
+                <a href="https://www.instagram.com/africacdc/" target="_blank" rel="noopener"><i class="fa fa-instagram"></i> Instagram</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <i class="fa fa-copyright"></i> 2025 Africa Centres for Disease Control and Prevention. Excellence in ethical review.
+    </div>
+</footer>
+
+<script>
+    // Session and user
+    const currentUser = sessionStorage.getItem('currentUser');
+    if (!currentUser) {
+        const demoReviewer = { name: "Dr. John Mwangi", role: "reviewer" };
+        sessionStorage.setItem('currentUser', JSON.stringify(demoReviewer));
+    }
+    const user = JSON.parse(sessionStorage.getItem('currentUser') || '{"name":"Dr. John Mwangi"}');
+
+    // Reviews dataset
+    let reviews = [
+        { id: 'ERC-2025-001', title: 'COVID-19 Vaccine Efficacy Study in East Africa', submittedDate: '2025-02-15', dueDate: '2025-03-20', priority: 'high', description: 'A randomized controlled trial to evaluate vaccine efficacy across 5 East African countries. Includes stratified analysis across diverse populations.', documents: ['protocol_v1.pdf', 'consent_form.pdf', 'data_safety_plan.pdf'], myReviewStatus: 'pending' },
+        { id: 'ERC-2025-002', title: 'Malaria Prevention in Children Under 5', submittedDate: '2025-02-28', dueDate: '2025-03-25', priority: 'medium', description: 'Community-based intervention study for malaria prevention in rural Uganda. Evaluating bed net distribution combined with community health worker education.', documents: ['study_protocol.pdf', 'community_agreement.pdf'], myReviewStatus: 'in-progress' },
+        { id: 'ERC-2025-006', title: 'Telemedicine Impact in Rural Areas', submittedDate: '2025-03-10', dueDate: '2025-03-27', priority: 'medium', description: 'Assessing telemedicine effectiveness in remote communities of Northern Kenya. Mixed-methods approach.', documents: ['proposal.pdf', 'telemedicine_protocol.pdf'], myReviewStatus: 'pending' },
+        { id: 'ERC-2025-007', title: 'Antimicrobial Resistance Surveillance', submittedDate: '2025-03-05', dueDate: '2025-03-28', priority: 'high', description: 'Surveillance study on antimicrobial resistance patterns in East African hospitals.', documents: ['protocol_amr.pdf', 'data_collection.pdf'], myReviewStatus: 'pending' },
+        { id: 'ERC-2025-008', title: 'Traditional Medicine Integration', submittedDate: '2025-02-10', dueDate: '2025-03-15', priority: 'low', description: 'Evaluation of traditional medicine practices integration into primary healthcare.', documents: ['traditional_medicine.pdf'], myReviewStatus: 'completed' }
+    ];
+
+    let currentFilter = 'all';
+    let currentReviewId = null;
+
+    // Helper functions
+    function getPriorityClass(priority) {
+        return priority === 'high' ? 'priority-high' : (priority === 'medium' ? 'priority-medium' : 'priority-low');
+    }
+
+    function getStatusLabel(status) {
+        if (status === 'pending') return 'PENDING';
+        if (status === 'in-progress') return 'IN PROGRESS';
+        return 'COMPLETED';
+    }
+
+    function updateStatsAndFilters() {
+        const pending = reviews.filter(r => r.myReviewStatus === 'pending').length;
+        const inProgress = reviews.filter(r => r.myReviewStatus === 'in-progress').length;
+        const completed = reviews.filter(r => r.myReviewStatus === 'completed').length;
+        const total = reviews.length;
+        
+        document.getElementById("compactStats").innerHTML = `
+            <div class="stat-pill"><i class="fa fa-hourglass-half"></i><div class="stat-info"><h4>Pending</h4><div class="stat-number">${pending}</div></div></div>
+            <div class="stat-pill"><i class="fa fa-spinner"></i><div class="stat-info"><h4>In Progress</h4><div class="stat-number">${inProgress}</div></div></div>
+            <div class="stat-pill"><i class="fa fa-check-circle"></i><div class="stat-info"><h4>Completed</h4><div class="stat-number">${completed}</div></div></div>
+            <div class="stat-pill"><i class="fa fa-chart-line"></i><div class="stat-info"><h4>Total Assigned</h4><div class="stat-number">${total}</div></div></div>
+        `;
+
+        const filterOptions = [
+            { key: "all", label: "All Reviews", icon: "fa-list" },
+            { key: "pending", label: "Pending", icon: "fa-hourglass-start" },
+            { key: "in-progress", label: "In Progress", icon: "fa-play-circle" },
+            { key: "completed", label: "Completed", icon: "fa-check-circle" }
+        ];
+        const container = document.getElementById("filterTabsContainer");
+        container.innerHTML = filterOptions.map(opt => `
+            <button class="filter-chip ${currentFilter === opt.key ? 'active' : ''}" data-filter="${opt.key}">
+                <i class="fa ${opt.icon}"></i> ${opt.label}
+            </button>
+        `).join('');
+        document.querySelectorAll('.filter-chip').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentFilter = btn.dataset.filter;
+                updateStatsAndFilters();
+                renderReviews();
+            });
+        });
+    }
+
+    function getFilteredReviews() {
+        if (currentFilter === "all") return [...reviews];
+        return reviews.filter(r => r.myReviewStatus === currentFilter);
+    }
+
+    function renderReviews() {
+        const filtered = getFilteredReviews();
+        const container = document.getElementById('reviewsContainer');
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fa fa-inbox fa-3x"></i><p style="margin-top:12px">No reviews match the selected filter</p></div>`;
+            return;
+        }
+        container.innerHTML = filtered.map(review => `
+            <div class="review-card ${getPriorityClass(review.priority)}">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem;">
+                    <div>
+                        <span style="font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 0.2rem 0.8rem; border-radius: 30px; font-size: 0.7rem;">${review.id}</span>
+                        <h3 style="margin-top: 0.5rem; font-size: 1.1rem;">${review.title}</h3>
+                    </div>
+                    <span class="status-badge status-${review.myReviewStatus === 'pending' ? 'pending' : (review.myReviewStatus === 'in-progress' ? 'in-progress' : 'completed')}">
+                        <i class="fa ${review.myReviewStatus === 'pending' ? 'fa-clock-o' : (review.myReviewStatus === 'in-progress' ? 'fa-pencil' : 'fa-check')}"></i> ${getStatusLabel(review.myReviewStatus)}
+                    </span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">${review.description.substring(0, 140)}${review.description.length > 140 ? '...' : ''}</p>
+                <div class="review-meta">
+                    <span><i class="fa fa-calendar"></i> Submitted: ${review.submittedDate}</span>
+                    <span><i class="fa fa-hourglass-end"></i> Due: ${review.dueDate}</span>
+                    <span><i class="fa fa-flag"></i> Priority: ${review.priority.toUpperCase()}</span>
+                    <span><i class="fa fa-file-pdf-o"></i> ${review.documents.length} doc(s)</span>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-outline-sm" onclick="viewSubmission('${review.id}')"><i class="fa fa-eye"></i> View Full Protocol</button>
+                    ${review.myReviewStatus !== 'completed' ? `<button class="btn-primary-sm" onclick="openReviewModal('${review.id}')"><i class="fa fa-comment"></i> Submit Review</button>` : `<button class="btn-outline-sm" disabled style="opacity:0.6;"><i class="fa fa-check"></i> Review Completed</button>`}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function viewSubmission(id) {
+        const review = reviews.find(r => r.id === id);
+        if (!review) return;
+        showAlert(`📄 ${review.id}: ${review.title}\n\nDocuments: ${review.documents.join(', ')}\n\nFull submission details and attachments available in integrated SharePoint portal.`, 'info');
+    }
+
+    function openReviewModal(id) {
+        const review = reviews.find(r => r.id === id);
+        if (!review) return;
+        currentReviewId = id;
+        document.getElementById('reviewTitle').innerHTML = `<i class="fa fa-file-text"></i> Review: ${review.id} - ${review.title}`;
+        document.getElementById('reviewModal').style.display = 'block';
+    }
+
+    function closeReviewModal() {
+        document.getElementById('reviewModal').style.display = 'none';
+        document.getElementById('reviewForm').reset();
+        currentReviewId = null;
+    }
+
+    function submitReview() {
+        const comments = document.getElementById('reviewComments').value.trim();
+        const recommendation = document.getElementById('recommendation').value;
+        if (!comments || !recommendation) {
+            showAlert('Please provide both review comments and a recommendation.', 'error');
+            return;
+        }
+        const reviewIndex = reviews.findIndex(r => r.id === currentReviewId);
+        if (reviewIndex !== -1) {
+            reviews[reviewIndex].myReviewStatus = 'completed';
+            reviews[reviewIndex].reviewerComments = comments;
+            reviews[reviewIndex].finalRecommendation = recommendation;
+            showAlert(`✅ Review submitted for ${currentReviewId}. Recommendation: ${recommendation}.`, 'success');
+        } else {
+            showAlert('Error: Review not found.', 'error');
+        }
+        closeReviewModal();
+        updateStatsAndFilters();
+        renderReviews();
+    }
+
+    function scrollToPendingReviews() {
+        const container = document.getElementById('reviewsContainer');
+        if (container) {
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            showAlert('Showing all pending reviews — start your review below', 'info');
+        }
+    }
+
+    function showAlert(message, type = 'info') {
+        const alertDiv = document.getElementById('alertMessage');
+        alertDiv.style.background = type === 'error' ? '#DC4C4C' : (type === 'success' ? '#1E6F5C' : '#0F3B2C');
+        alertDiv.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation-circle' : (type === 'success' ? 'check-circle' : 'info-circle')}"></i> ${message}`;
+        alertDiv.style.display = 'block';
+        setTimeout(() => alertDiv.style.display = 'none', 3800);
+    }
+
+    function logout() {
+        sessionStorage.removeItem('currentUser');
+        showAlert('Logging out...', 'info');
+        setTimeout(() => window.location.href = 'index.html', 500);
+    }
+
+    // Set user name
+    document.getElementById('userName').innerHTML = `<i class="fa fa-user-circle"></i> ${user.name}`;
+
+    // Initialize
+    updateStatsAndFilters();
+    renderReviews();
+
+    // Event binding
+    document.getElementById('reviewForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitReview();
+    });
+    window.onclick = (e) => {
+        const modal = document.getElementById('reviewModal');
+        if (e.target === modal) closeReviewModal();
+    };
+    window.viewSubmission = viewSubmission;
+    window.openReviewModal = openReviewModal;
+    window.closeReviewModal = closeReviewModal;
+    window.logout = logout;
+    window.scrollToPendingReviews = scrollToPendingReviews;
+</script>
+</body>
+</html>

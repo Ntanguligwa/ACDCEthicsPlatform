@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Africa CDC | Ethical Review Hub</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F4F7F9;
+            color: #1A2C2E;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Color system */
+        :root {
+            --primary-deep: #0F3B2C;
+            --primary: #1E6F5C;
+            --primary-light: #EFFAF7;
+            --gold: #D4AF37;
+            --gold-light: #FBF5E0;
+            --gray-bg: #F8FAFC;
+            --gray-border: #E2E8F0;
+            --text-dark: #1A2C2E;
+            --text-muted: #4A5B5E;
+            --success: #1E6F5C;
+            --warning: #E6B422;
+            --danger: #DC4C4C;
+            --info: #2C7DA0;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--primary-deep);
+            color: white;
+            padding: 0.9rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo img {
+            width: 48px;
+            height: 48px;
+            background: white;
+            padding: 6px;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+        .logo h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        .user-badge {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(4px);
+            padding: 0.45rem 1rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .logout-btn {
+            background: var(--gold);
+            color: var(--primary-deep);
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logout-btn:hover {
+            background: #e6c35c;
+            transform: translateY(-1px);
+        }
+
+        /* Dashboard container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.8rem;
+            flex: 1;
+        }
+
+        /* Quick action hero */
+        .quick-action-hero {
+            background: linear-gradient(135deg, #0F3B2C 0%, #1E6F5C 100%);
+            border-radius: 28px;
+            padding: 1.6rem 2rem;
+            margin-bottom: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            box-shadow: 0 12px 24px -12px rgba(0,0,0,0.2);
+        }
+        .hero-text h2 {
+            color: white;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+        .hero-text p {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.9rem;
+        }
+        .hero-btn {
+            background: var(--gold);
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #0F3B2C;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .hero-btn i {
+            font-size: 1.2rem;
+        }
+        .hero-btn:hover {
+            background: #FFE082;
+            transform: scale(1.02);
+        }
+
+        /* Stats row */
+        .stats-mini-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: space-between;
+        }
+        .stat-pill {
+            background: white;
+            border-radius: 40px;
+            padding: 0.6rem 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--gray-border);
+            flex: 1;
+            min-width: 140px;
+        }
+        .stat-pill i {
+            font-size: 1.6rem;
+            color: var(--primary);
+        }
+        .stat-pill .stat-info h4 {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+        .stat-pill .stat-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-deep);
+        }
+
+        /* Filter tabs */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--gray-border);
+            padding-bottom: 0.75rem;
+        }
+        .filter-chip {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-weight: 500;
+            font-size: 0.85rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(30,111,92,0.2);
+        }
+        .filter-chip:hover:not(.active) {
+            background: #E9F0EE;
+            color: var(--primary-deep);
+        }
+
+        /* Submission cards */
+        .submissions-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .submission-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.4rem 1.6rem;
+            transition: all 0.2s ease;
+            border: 1px solid var(--gray-border);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .submission-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -12px rgba(0,0,0,0.12);
+            border-color: #cbdcd8;
+        }
+        .status-badge {
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-pending { background: #FFF2DF; color: #B86F0C; }
+        .status-screening { background: #E2F0FD; color: #1F6392; }
+        .status-assigned { background: #E4F1ED; color: #1E6F5C; }
+        .status-review { background: #E2F0FD; color: #1F6392; }
+        .status-minorrevision { background: #FFF0E0; color: #C46F0B; }
+        .status-majorrevision { background: #FFE8E0; color: #C94F2C; }
+        .status-approved { background: #E0F2E9; color: #1E6F5C; }
+        .status-rejected { background: #FFEAED; color: #D14545; }
+
+        .submission-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 0.5rem 0;
+        }
+        .timeline-progress {
+            margin: 0.8rem 0;
+            height: 5px;
+            background: #E2E8F0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        .card-actions {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--gray-border);
+        }
+        .btn-sm {
+            background: transparent;
+            border: 1px solid var(--gray-border);
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary-sm {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        .btn-outline-sm {
+            background: white;
+            border: 1px solid var(--gray-border);
+        }
+        .btn-outline-sm:hover {
+            background: #F1F5F9;
+            border-color: var(--primary);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+        .modal-content {
+            background: white;
+            margin: 2rem auto;
+            padding: 1.8rem;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 720px;
+            animation: fadeUp 0.25s ease;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .form-group {
+            margin-bottom: 1.4rem;
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1.5px solid var(--gray-border);
+            border-radius: 16px;
+            font-family: inherit;
+        }
+        .comments-section {
+            background: #F9FCFB;
+            padding: 1rem;
+            border-radius: 20px;
+        }
+        .alert {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--primary-deep);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            display: none;
+            z-index: 1100;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 28px;
+            color: var(--text-muted);
+        }
+
+        /* ========== FOOTER STYLES ========== */
+        .footer {
+            background: #0A2A20;
+            color: #E0E7E5;
+            margin-top: 3rem;
+            padding: 2.5rem 2rem 1.8rem;
+            border-top: 4px solid var(--gold);
+        }
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+        }
+        .footer-section h4 {
+            color: var(--gold);
+            font-size: 1rem;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-left: 3px solid var(--gold);
+            padding-left: 0.75rem;
+        }
+        .footer-section p, .footer-section a {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #C0D6D0;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s;
+        }
+        .footer-section a:hover {
+            color: var(--gold);
+            text-decoration: underline;
+        }
+        .footer-section i {
+            width: 24px;
+            color: var(--gold);
+            margin-right: 8px;
+        }
+        .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(212, 175, 55, 0.12);
+            padding: 0.4rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+        .social-links a i {
+            margin-right: 0;
+            font-size: 1rem;
+        }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            font-size: 0.75rem;
+            color: #8FADA3;
+        }
+        @media (max-width: 720px) {
+            .dashboard-container { padding: 1.2rem; }
+            .quick-action-hero { flex-direction: column; text-align: center; }
+            .footer-container { grid-template-columns: 1fr; gap: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">
+        <!-- Africa CDC Logo - using actual AfricaCDClogo.png as requested -->
+        <img src="AfricaCDClogo.png" alt="Africa CDC Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23D4AF37\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'48\' text-anchor=\'middle\' fill=\'%231B4D3E\' font-weight=\'bold\'%3E♂%3C/text%3E%3C/svg%3E';">
+        <h1>Africa CDC Ethics Review</h1>
+    </div>
+    <div class="user-info">
+        <div class="user-badge"><i class="fa fa-flask"></i> RESEARCHER</div>
+        <span id="userName"><i class="fa fa-user-circle"></i> Loading...</span>
+        <button class="logout-btn" onclick="logout()"><i class="fa fa-sign-out"></i> Exit</button>
+    </div>
+</nav>
+
+<div class="dashboard-container">
+    <!-- QUICK ACTION HERO - topmost, core initiator -->
+    <div class="quick-action-hero">
+        <div class="hero-text">
+            <h2><i class="fa fa-file-text-o"></i> New ethical submission</h2>
+            <p>Initiate a research ethics review — fast-track your protocol for Africa CDC approval</p>
+        </div>
+        <button class="hero-btn" onclick="openNewSubmissionModal()">
+            <i class="fa fa-plus-circle"></i> Start Submission
+        </button>
+    </div>
+
+    <!-- Compact stats row -->
+    <div class="stats-mini-row" id="compactStats"></div>
+
+    <!-- Unified filter tabs -->
+    <div class="filter-tabs" id="filterTabsContainer"></div>
+
+    <!-- Submissions list -->
+    <div id="submissionsContainer" class="submissions-grid"></div>
+</div>
+
+<!-- New Submission Modal -->
+<div id="newSubmissionModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" style="float: right; font-size: 28px; cursor: pointer;" onclick="closeNewSubmissionModal()">&times;</span>
+        <h2 style="margin-bottom: 1rem;"><i class="fa fa-upload"></i> New Ethics Submission</h2>
+        <form id="newSubmissionForm">
+            <div class="form-group">
+                <label>Protocol Title *</label>
+                <input type="text" id="newTitle" placeholder="e.g., Effectiveness of malaria prevention in rural areas" required>
+            </div>
+            <div class="form-group">
+                <label>Study Description *</label>
+                <textarea id="newDescription" rows="5" placeholder="Objectives, methodology, participant criteria, ethical safeguards..." required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Study Type</label>
+                <select id="studyType">
+                    <option>Clinical Trial</option>
+                    <option>Observational Study</option>
+                    <option>Qualitative Research</option>
+                    <option>Implementation Science</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Supporting documents (simulated)</label>
+                <input type="file" multiple accept=".pdf,.doc">
+                <small style="color:gray">Demo: file upload placeholder (integration ready)</small>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button type="submit" class="btn-primary-sm" style="padding: 0.7rem 1.5rem;"><i class="fa fa-paper-plane"></i> Submit to Review</button>
+                <button type="button" class="btn-outline-sm" onclick="closeNewSubmissionModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- View Details Modal -->
+<div id="submissionModal" class="modal">
+    <div class="modal-content" style="max-width: 750px;">
+        <span class="close-modal" style="float: right; font-size: 28px; cursor: pointer;" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle"></h2>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<div id="alertMessage" class="alert"></div>
+
+<!-- ==================== FOOTER with full details ==================== -->
+<footer class="footer">
+    <div class="footer-container">
+        <!-- Address & Contact -->
+        <div class="footer-section">
+            <h4><i class="fa fa-map-marker"></i> Africa CDC Headquarters</h4>
+            <p><i class="fa fa-location-arrow"></i> 16/17, Addis Ababa, Ethiopia</p>
+            <p><i class="fa fa-phone"></i> +251 11 551 7700</p>
+            <p><i class="fa fa-envelope"></i> support@africacdc.org</p>
+        </div>
+        
+        <!-- Navigate -->
+        <div class="footer-section">
+            <h4><i class="fa fa-compass"></i> Navigate</h4>
+            <a href="https://khub.africacdc.org/" target="_blank" rel="noopener"><i class="fa fa-graduation-cap"></i> KnowledgeHub Portal</a>
+            <a href="https://africacdc.org/" target="_blank" rel="noopener"><i class="fa fa-globe"></i> Africa CDC Website</a>
+            <a href="#" onclick="showAlert('Privacy Policy document (PDF) will be available soon', 'info'); return false;"><i class="fa fa-lock"></i> Privacy Policy</a>
+        </div>
+        
+        <!-- Resources -->
+        <div class="footer-section">
+            <h4><i class="fa fa-book"></i> Resources</h4>
+            <a href="#" onclick="showAlert('User Guide – Comprehensive guide for researchers', 'info'); return false;"><i class="fa fa-users"></i> User Guide</a>
+            <a href="#" onclick="showAlert('Standard Operating Procedures for Ethical Review', 'info'); return false;"><i class="fa fa-file-text"></i> The Standard Operating Procedures</a>
+            <a href="#" onclick="showAlert('Africa CDC Ethics Guidelines – official document', 'info'); return false;"><i class="fa fa-balance-scale"></i> Ethics Guidelines</a>
+            <a href="#" onclick="showAlert('Checklist for ethical clearance application submission', 'info'); return false;"><i class="fa fa-check-square-o"></i> Checklist for ethical clearance application submission</a>
+            <a href="#" onclick="showAlert('Data transfer agreement template', 'info'); return false;"><i class="fa fa-exchange"></i> Data transfer agreement for researchers/organizations</a>
+            <a href="#" onclick="showAlert('Material transfer agreement template', 'info'); return false;"><i class="fa fa-cubes"></i> Material transfer agreement for researchers/organizations</a>
+            </div>
+        
+        <!-- Follow us + social -->
+        <div class="footer-section">
+            <h4><i class="fa fa-share-alt"></i> Follow us</h4>
+            <div class="social-links">
+                <a href="https://twitter.com/AfricaCDC" target="_blank" rel="noopener"><i class="fa fa-twitter"></i> X (Twitter)</a>
+                <a href="https://www.linkedin.com/company/africacdc/" target="_blank" rel="noopener"><i class="fa fa-linkedin"></i> LinkedIn</a>
+                <a href="https://web.facebook.com/africacdc/" target="_blank" rel="noopener"><i class="fa fa-facebook"></i> Facebook</a>
+                <a href="https://www.youtube.com/channel/UCWRIrWg4as6umiFK_k80pIg" target="_blank" rel="noopener"><i class="fa fa-youtube-play"></i> YouTube</a>
+                <a href="https://www.flickr.com/photos/africacdc/albums/" target="_blank" rel="noopener"><i class="fa fa-flickr"></i> Flickr</a>
+                <a href="https://www.instagram.com/africacdc/" target="_blank" rel="noopener"><i class="fa fa-instagram"></i> Instagram</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <i class="fa fa-copyright"></i> 2025 Africa Centres for Disease Control and Prevention. Advancing ethical research across the continent.
+    </div>
+</footer>
+
+<script>
+    // User session
+    const currentUser = sessionStorage.getItem('currentUser');
+    if (!currentUser) {
+        const demoUser = { name: "Dr. Amina Diallo", role: "researcher" };
+        sessionStorage.setItem('currentUser', JSON.stringify(demoUser));
+    }
+    const user = JSON.parse(sessionStorage.getItem('currentUser') || '{"name":"Dr. Amina Diallo"}');
+    
+    const workflowOrder = ["pending", "screening", "assigned", "review", "minor-revision", "major-revision", "committee", "approved", "rejected"];
+    function getStageIndex(stage) { return workflowOrder.indexOf(stage); }
+    function getStageName(stageKey) {
+        const map = { pending: "Pending", screening: "Initial Screening", assigned: "Assigned to Reviewers", review: "Under Review", "minor-revision": "Minor Revision", "major-revision": "Major Revision", committee: "Committee Review", approved: "Approved", rejected: "Rejected" };
+        return map[stageKey] || stageKey;
+    }
+    function getStageIcon(stage) {
+        const icons = { pending:"fa-hourglass-half", screening:"fa-filter", assigned:"fa-users", review:"fa-search", "minor-revision":"fa-edit", "major-revision":"fa-pencil-square-o", committee:"fa-group", approved:"fa-check-circle", rejected:"fa-ban" };
+        return icons[stage] || "fa-circle";
+    }
+
+    let submissions = [
+        { id: "ERC-2025-001", title: "COVID-19 Vaccine Efficacy in East Africa", currentStage: "minor-revision", submittedDate: "2025-02-15", description: "RCT evaluating vaccine efficacy across 5 countries. Includes stratified analysis.", documents: ["protocol_v2.pdf", "consent_form.pdf"], comments: [{ author: "Reviewer", date: "2025-03-10", text: "Please clarify sample size calculation and randomization details." }], timeline: [{ stage: "pending", date: "2025-02-15", action: "Submitted", actor: user.name }, { stage: "minor-revision", date: "2025-03-10", action: "Revision required", actor: "Ethics Committee" }] },
+        { id: "ERC-2025-002", title: "Malaria Prevention in Children Under 5", currentStage: "review", submittedDate: "2025-02-28", description: "Community intervention with bed net distribution + education.", documents: ["protocol.pdf"], comments: [{ author: "Dr. Omondi", date: "2025-03-12", text: "Strong design, awaiting CHW training details." }], timeline: [{ stage: "pending", date: "2025-02-28", action: "Submitted", actor: user.name }, { stage: "review", date: "2025-03-12", action: "Under review", actor: "Reviewer" }] },
+        { id: "ERC-2025-003", title: "Ethical Framework for AI in Healthcare", currentStage: "approved", submittedDate: "2025-01-10", description: "Guidelines for AI implementation, data privacy, bias.", documents: ["framework.pdf"], comments: [{ author: "Ethics Committee", date: "2025-03-01", text: "Approved with congratulations." }], timeline: [{ stage: "approved", date: "2025-03-01", action: "Final approval", actor: "Committee" }] },
+        { id: "ERC-2025-004", title: "Mobile Health for Maternal Care", currentStage: "major-revision", submittedDate: "2025-01-20", description: "mHealth app vs SMS reminders for ANC attendance.", documents: ["proposal.pdf"], comments: [{ author: "Review Board", date: "2025-02-28", text: "Major revisions: clarify data privacy protocols and consent process." }], timeline: [{ stage: "major-revision", date: "2025-02-28", action: "Major revisions needed", actor: "Review Committee" }] },
+        { id: "ERC-2025-005", title: "TB Treatment Adherence in Urban Settings", currentStage: "pending", submittedDate: "2025-03-20", description: "Mixed-methods study on adherence barriers.", documents: [], comments: [], timeline: [{ stage: "pending", date: "2025-03-20", action: "Submitted", actor: user.name }] }
+    ];
+
+    let currentFilter = "all";
+
+    function updateStatsAndFilters() {
+        const total = submissions.length;
+        const active = submissions.filter(s => !["approved","rejected"].includes(s.currentStage)).length;
+        const revisions = submissions.filter(s => s.currentStage.includes("revision")).length;
+        const approved = submissions.filter(s => s.currentStage === "approved").length;
+        document.getElementById("compactStats").innerHTML = `
+            <div class="stat-pill"><i class="fa fa-folder-open"></i><div class="stat-info"><h4>Total</h4><div class="stat-number">${total}</div></div></div>
+            <div class="stat-pill"><i class="fa fa-spinner"></i><div class="stat-info"><h4>Active</h4><div class="stat-number">${active}</div></div></div>
+            <div class="stat-pill"><i class="fa fa-edit"></i><div class="stat-info"><h4>Revisions</h4><div class="stat-number">${revisions}</div></div></div>
+            <div class="stat-pill"><i class="fa fa-check-circle"></i><div class="stat-info"><h4>Approved</h4><div class="stat-number">${approved}</div></div></div>
+        `;
+        const filterOptions = [{ key: "all", label: "All Submissions", icon: "fa-list" },{ key: "pending", label: "Pending", icon: "fa-clock-o" },{ key: "review", label: "Under Review", icon: "fa-search" },{ key: "revision", label: "Revisions Required", icon: "fa-edit" },{ key: "approved", label: "Approved", icon: "fa-check" },{ key: "rejected", label: "Rejected", icon: "fa-ban" }];
+        const container = document.getElementById("filterTabsContainer");
+        container.innerHTML = filterOptions.map(opt => `<button class="filter-chip ${currentFilter === opt.key ? 'active' : ''}" data-filter="${opt.key}"><i class="fa ${opt.icon}"></i> ${opt.label}</button>`).join('');
+        document.querySelectorAll('.filter-chip').forEach(btn => { btn.addEventListener('click', (e) => { currentFilter = btn.dataset.filter; updateStatsAndFilters(); renderSubmissions(); }); });
+    }
+
+    function getFilteredSubmissions() {
+        if (currentFilter === "all") return [...submissions];
+        if (currentFilter === "review") return submissions.filter(s => ["screening","assigned","review"].includes(s.currentStage));
+        if (currentFilter === "revision") return submissions.filter(s => s.currentStage.includes("revision"));
+        return submissions.filter(s => s.currentStage === currentFilter);
+    }
+
+    function getProgressWidth(stage) {
+        const idx = getStageIndex(stage); if (idx === -1) return 0;
+        const maxIdx = workflowOrder.length - 2; return Math.min(100, (idx / maxIdx) * 100);
+    }
+
+    function renderSubmissions() {
+        const filtered = getFilteredSubmissions();
+        const container = document.getElementById("submissionsContainer");
+        if (filtered.length === 0) { container.innerHTML = `<div class="empty-state"><i class="fa fa-inbox fa-3x"></i><p>No submissions match filter</p><button class="btn-primary-sm" onclick="openNewSubmissionModal()"><i class="fa fa-plus"></i> Create new</button></div>`; return; }
+        container.innerHTML = filtered.map(sub => { const statusClass = sub.currentStage.replace('-',''); const progress = getProgressWidth(sub.currentStage);
+            return `<div class="submission-card"><div class="card-header-row"><div><span class="submission-id">${sub.id}</span><div class="submission-title">${sub.title}</div></div><span class="status-badge status-${statusClass}"><i class="fa ${getStageIcon(sub.currentStage)}"></i> ${getStageName(sub.currentStage)}</span></div><div class="submission-meta"><span><i class="fa fa-calendar"></i> ${sub.submittedDate}</span><span><i class="fa fa-file-text"></i> ${sub.documents.length} doc(s)</span><span><i class="fa fa-commenting"></i> ${sub.comments.length} comment(s)</span></div><div class="timeline-progress"><div class="progress-fill" style="width: ${progress}%;"></div></div><div class="card-actions"><button class="btn-outline-sm" onclick="viewSubmission('${sub.id}')"><i class="fa fa-eye"></i> Details</button>${sub.currentStage.includes('revision') ? `<button class="btn-primary-sm" onclick="editSubmission('${sub.id}')"><i class="fa fa-upload"></i> Revise & Resubmit</button>` : ''}<button class="btn-outline-sm" onclick="viewTimeline('${sub.id}')"><i class="fa fa-history"></i> Timeline</button></div></div>`; }).join('');
+    }
+
+    function viewSubmission(id) { const sub = submissions.find(s => s.id === id); if (!sub) return; document.getElementById("modalTitle").innerHTML = `${sub.id}: ${sub.title}`; document.getElementById("modalContent").innerHTML = `<div><strong>Description</strong><p style="background:#F4F7F9; padding:12px; border-radius:16px;">${sub.description}</p></div><div><strong>Documents</strong><ul>${sub.documents.map(d => `<li><i class="fa fa-file-pdf-o"></i> ${d}</li>`).join('') || '<li>No documents</li>'}</ul></div>${sub.comments.length ? `<div class="comments-section"><strong>Reviewer Feedback</strong>${sub.comments.map(c => `<div><b>${c.author}</b> <span style="color:gray">${c.date}</span><p>${c.text}</p></div>`).join('')}</div>` : '<p>No comments yet</p>'}${sub.currentStage.includes('revision') ? `<div style="margin-top:1rem; background:#FFF2DF; padding:1rem; border-radius:20px;"><strong>Revision requested</strong><p>Please address comments and resubmit.</p><button class="btn-primary-sm" onclick="closeModal(); editSubmission('${sub.id}')">Revise now</button></div>` : ''}`; document.getElementById("submissionModal").style.display = "block"; }
+    function viewTimeline(id) { const sub = submissions.find(s => s.id === id); if (!sub || !sub.timeline) { showAlert("Timeline details will be fully integrated with SharePoint", "info"); return; } document.getElementById("modalTitle").innerHTML = `Timeline · ${sub.id}`; document.getElementById("modalContent").innerHTML = `<table style="width:100%; border-collapse: collapse;"><thead><tr><th>Date</th><th>Stage</th><th>Action</th><th>Actor</th></tr></thead><tbody>${sub.timeline.map(t => `<tr><td>${t.date}</td><td>${getStageName(t.stage)}</td><td>${t.action}</td><td>${t.actor}</td></tr>`).join('')}</tbody></table><div style="margin-top:1rem"><strong>Current:</strong> ${getStageName(sub.currentStage)}</div>`; document.getElementById("submissionModal").style.display = "block"; }
+    function editSubmission(id) { showAlert("Revision portal: upload revised documents & respond to reviewer comments (integrated with SharePoint)", "info"); }
+    function openNewSubmissionModal() { document.getElementById("newSubmissionModal").style.display = "block"; }
+    function closeNewSubmissionModal() { document.getElementById("newSubmissionModal").style.display = "none"; document.getElementById("newSubmissionForm").reset(); }
+    function closeModal() { document.getElementById("submissionModal").style.display = "none"; }
+    function newSubmission() { const title = document.getElementById("newTitle").value.trim(); const description = document.getElementById("newDescription").value.trim(); if (!title || !description) { showAlert("Title and description are required", "error"); return; } const studyType = document.getElementById("studyType").value; const newId = `ERC-2025-${String(submissions.length + 105).slice(-3)}`; const newSub = { id: newId, title: title, currentStage: "pending", submittedDate: new Date().toISOString().split('T')[0], description: `${description}\n\nStudy Type: ${studyType}`, documents: [], comments: [], timeline: [{ stage: "pending", date: new Date().toISOString().split('T')[0], action: "Initial submission", actor: user.name }] }; submissions.unshift(newSub); showAlert(`Submission ${newId} created!`, "success"); closeNewSubmissionModal(); updateStatsAndFilters(); renderSubmissions(); }
+    function showAlert(msg, type) { const alertDiv = document.getElementById("alertMessage"); alertDiv.style.background = type === "error" ? "#DC4C4C" : (type === "success" ? "#1E6F5C" : "#0F3B2C"); alertDiv.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation' : 'info-circle'}"></i> ${msg}`; alertDiv.style.display = "block"; setTimeout(() => alertDiv.style.display = "none", 3800); }
+    function logout() { sessionStorage.removeItem('currentUser'); showAlert("Logged out", "info"); setTimeout(() => window.location.href = 'index.html', 500); }
+
+    document.getElementById("userName").innerHTML = `<i class="fa fa-user-circle"></i> ${user.name}`;
+    document.getElementById("newSubmissionForm").addEventListener("submit", (e) => { e.preventDefault(); newSubmission(); });
+    window.onclick = (e) => { if (e.target.classList.contains("modal")) { closeModal(); closeNewSubmissionModal(); } };
+    window.viewSubmission = viewSubmission; window.viewTimeline = viewTimeline; window.editSubmission = editSubmission;
+    window.openNewSubmissionModal = openNewSubmissionModal; window.closeNewSubmissionModal = closeNewSubmissionModal;
+    window.closeModal = closeModal; window.logout = logout;
+    updateStatsAndFilters(); renderSubmissions();
+</script>
+</body>
+</html>
